@@ -1,0 +1,6 @@
+# x402check CORS Proxy Worker Configuration
+# Deploy with: cd worker && npx wrangler deploy
+
+name = "x402-proxy"
+main = "proxy.js"
+compatibility_date = "2024-01-01"

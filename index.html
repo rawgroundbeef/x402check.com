@@ -134,6 +134,25 @@
       font-style: italic;
       color: #555;
     }
+
+    /* Loading state for button */
+    #validate-btn.loading {
+      opacity: 0.7;
+      cursor: not-allowed;
+    }
+
+    /* Source info in results */
+    .source-info {
+      font-size: 0.875rem;
+      color: #6b7280;
+      margin-bottom: 8px;
+    }
+
+    .status-warning {
+      color: #f59e0b;
+      font-size: 0.875rem;
+      margin-bottom: 8px;
+    }
   </style>
 </head>
 <body>
@@ -141,9 +160,12 @@
     <h1>x402 Config Validator</h1>
     <p class="subtitle">Validate your x402 payment configuration in under 30 seconds</p>
 
-    <textarea id="config-input" placeholder='Paste your x402 config JSON here...
+    <textarea id="config-input" placeholder='Paste a URL or x402 JSON config...
 
-Example:
+Example URL:
+https://your-api.com/protected-resource
+
+Example JSON:
 {
   "x402Version": 1,
   "payments": [{
@@ -166,6 +188,7 @@ Example:
   <!-- App Scripts -->
   <script src="chains.js"></script>
   <script src="validator.js"></script>
+  <script src="input.js"></script>
 
   <!-- UI Logic -->
   <script>
@@ -173,31 +196,60 @@ Example:
     const validateBtn = document.getElementById('validate-btn');
     const resultsDiv = document.getElementById('results');
 
-    validateBtn.addEventListener('click', () => {
-      const configText = configInput.value.trim();
+    // Click handler with loading state
+    validateBtn.addEventListener('click', async () => {
+      const inputValue = configInput.value.trim();
 
-      if (!configText) {
+      if (!inputValue) {
         resultsDiv.className = 'invalid';
-        resultsDiv.innerHTML = '<div class="status invalid">No config provided</div><p>Please paste a JSON config in the textarea above.</p>';
+        resultsDiv.innerHTML = '<div class="status invalid">No input provided</div><p>Please paste a URL or JSON config in the textarea above.</p>';
         return;
       }
 
-      const result = validateX402Config(configText);
+      // Disable button, show loading
+      validateBtn.disabled = true;
+      validateBtn.classList.add('loading');
+      const originalText = validateBtn.textContent;
+      validateBtn.textContent = 'Validating...';
 
+      try {
+        await handleValidation(inputValue, displayResults, displayError);
+      } catch (error) {
+        displayError(error.message);
+      } finally {
+        // Always re-enable button
+        validateBtn.disabled = false;
+        validateBtn.classList.remove('loading');
+        validateBtn.textContent = originalText;
+      }
+    });
+
+    // Display validation results with source info
+    function displayResults(result) {
       // Clear previous results
       resultsDiv.className = '';
-      resultsDiv.innerHTML = '';
+      let html = '';
 
-      // Show status
+      // Source info for URL fetches (not shown for direct input)
+      if (result.source && result.source !== 'direct input') {
+        html += `<div class="source-info">Config found in: ${result.source}</div>`;
+      }
+
+      // Status warning for non-402 responses
+      if (result.warning) {
+        html += `<div class="status-warning">${result.warning}</div>`;
+      }
+
+      // Show validation status
       if (result.valid) {
         resultsDiv.className = 'valid';
         const statusText = result.warnings.length > 0
           ? `Valid (${result.warnings.length} warning${result.warnings.length > 1 ? 's' : ''})`
           : 'Valid';
-        resultsDiv.innerHTML = `<div class="status valid">✓ ${statusText}</div>`;
+        html += `<div class="status valid">&#10003; ${statusText}</div>`;
 
         if (result.version) {
-          resultsDiv.innerHTML += `<p>x402 version ${result.version} detected</p>`;
+          html += `<p>x402 version ${result.version} detected</p>`;
         }
       } else {
         resultsDiv.className = 'invalid';
@@ -205,41 +257,47 @@ Example:
         const warningText = result.warnings.length > 0
           ? `, ${result.warnings.length} warning${result.warnings.length > 1 ? 's' : ''}`
           : '';
-        resultsDiv.innerHTML = `<div class="status invalid">✗ Invalid — ${result.errors.length} ${errorText}${warningText}</div>`;
+        html += `<div class="status invalid">&#10007; Invalid - ${result.errors.length} ${errorText}${warningText}</div>`;
       }
 
       // Show errors
       if (result.errors.length > 0) {
-        let errorHtml = '<div class="error-list"><strong>Errors:</strong>';
+        html += '<div class="error-list"><strong>Errors:</strong>';
         result.errors.forEach(error => {
-          errorHtml += `
+          html += `
             <div class="error-item">
               <div class="field-path">${error.field}</div>
               <div>${error.message}</div>
-              <div class="fix">→ ${error.fix}</div>
+              <div class="fix">-> ${error.fix}</div>
             </div>
           `;
         });
-        errorHtml += '</div>';
-        resultsDiv.innerHTML += errorHtml;
+        html += '</div>';
       }
 
       // Show warnings
       if (result.warnings.length > 0) {
-        let warningHtml = '<div class="warning-list"><strong>Warnings:</strong>';
+        html += '<div class="warning-list"><strong>Warnings:</strong>';
         result.warnings.forEach(warning => {
-          warningHtml += `
+          html += `
             <div class="warning-item">
               <div class="field-path">${warning.field}</div>
               <div>${warning.message}</div>
-              <div class="fix">→ ${warning.fix}</div>
+              <div class="fix">-> ${warning.fix}</div>
             </div>
           `;
         });
-        warningHtml += '</div>';
-        resultsDiv.innerHTML += warningHtml;
+        html += '</div>';
       }
-    });
+
+      resultsDiv.innerHTML = html;
+    }
+
+    // Display error message
+    function displayError(message) {
+      resultsDiv.className = 'invalid';
+      resultsDiv.innerHTML = `<div class="status invalid">&#10007; Error</div><p>${message}</p>`;
+    }
   </script>
 </body>
 </html>

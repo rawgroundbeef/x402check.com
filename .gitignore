@@ -1,0 +1,15 @@
+# Claude Code
+.claude/
+
+# Wrangler
+.wrangler/
+
+# Test files
+test-*.html
+verify-*.html
+
+# OS
+.DS_Store
+
+# Node
+node_modules/

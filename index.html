@@ -369,10 +369,17 @@ Example JSON:
 
       // Show raw fetched config for URL fetches
       if (result.fetchedConfig) {
+        // Pretty-print the JSON
+        let formattedConfig;
+        try {
+          formattedConfig = JSON.stringify(JSON.parse(result.fetchedConfig), null, 2);
+        } catch (e) {
+          formattedConfig = result.fetchedConfig;
+        }
         html += `
           <details class="raw-response">
             <summary>View fetched config</summary>
-            <pre>${escapeHtml(result.fetchedConfig)}</pre>
+            <pre>${escapeHtml(formattedConfig)}</pre>
           </details>
         `;
       }

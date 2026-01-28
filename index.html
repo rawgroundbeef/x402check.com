@@ -4,343 +4,58 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>x402 Config Validator</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            mono: ['JetBrains Mono', 'Fira Code', 'Consolas', 'monospace'],
+          }
+        }
+      }
+    }
+  </script>
   <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
-
-    body {
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-      line-height: 1.6;
-      color: #333;
-      background: #f5f5f5;
-      padding: 20px;
-    }
-
-    #app {
-      max-width: 1200px;
-      margin: 0 auto;
-      background: white;
-      border-radius: 8px;
-      padding: 32px;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-    }
-
-    h1 {
-      font-size: 28px;
-      margin-bottom: 8px;
-      color: #111;
-    }
-
-    .subtitle {
-      color: #666;
-      margin-bottom: 24px;
-    }
-
-    /* Examples section */
-    .examples-section {
-      margin-bottom: 24px;
-      border: 1px solid #e5e7eb;
-      border-radius: 8px;
-      overflow: hidden;
-    }
-
-    .examples-header {
-      background: #f9fafb;
-      padding: 12px 16px;
-      cursor: pointer;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      font-weight: 500;
-      user-select: none;
-    }
-
-    .examples-header:hover {
-      background: #f3f4f6;
-    }
-
-    .examples-header .arrow {
-      transition: transform 0.2s;
-    }
-
-    .examples-section[open] .arrow {
-      transform: rotate(90deg);
-    }
-
-    .examples-content {
-      padding: 16px;
-      border-top: 1px solid #e5e7eb;
-    }
-
-    .example-tabs {
-      display: flex;
-      gap: 8px;
-      margin-bottom: 12px;
-    }
-
-    .example-tab {
-      padding: 6px 12px;
-      border: 1px solid #d1d5db;
-      border-radius: 4px;
-      background: white;
-      cursor: pointer;
-      font-size: 14px;
-    }
-
-    .example-tab:hover {
-      background: #f9fafb;
-    }
-
-    .example-tab.active {
-      background: #0066ff;
-      color: white;
-      border-color: #0066ff;
-    }
-
-    .example-code {
-      background: #1e1e1e;
-      color: #d4d4d4;
-      padding: 16px;
-      border-radius: 4px;
-      font-family: 'Courier New', Courier, monospace;
-      font-size: 13px;
-      overflow-x: auto;
-      white-space: pre;
-      margin-bottom: 12px;
-    }
-
+    /* Custom styles that Tailwind can't easily do */
     .example-code .key { color: #9cdcfe; }
     .example-code .string { color: #ce9178; }
     .example-code .number { color: #b5cea8; }
-
-    .example-note {
-      font-size: 13px;
-      color: #6b7280;
-      padding: 8px 12px;
-      background: #f9fafb;
-      border-radius: 4px;
-      border-left: 3px solid #0066ff;
-    }
-
-    .example-note strong {
-      color: #374151;
-    }
-
-    .load-example-btn {
-      padding: 6px 12px;
-      background: #f3f4f6;
-      border: 1px solid #d1d5db;
-      border-radius: 4px;
-      cursor: pointer;
-      font-size: 13px;
-      margin-top: 8px;
-    }
-
-    .load-example-btn:hover {
-      background: #e5e7eb;
-    }
-
-    #config-input {
-      width: 100%;
-      min-height: 300px;
-      padding: 12px;
-      font-family: 'Courier New', Courier, monospace;
-      font-size: 14px;
-      border: 1px solid #ccc;
-      border-radius: 4px;
-      margin-bottom: 16px;
-      resize: vertical;
-    }
-
-    #validate-btn {
-      background: #0066ff;
-      color: white;
-      border: none;
-      padding: 12px 24px;
-      font-size: 16px;
-      border-radius: 4px;
-      cursor: pointer;
-      font-weight: 500;
-    }
-
-    #validate-btn:hover {
-      background: #0052cc;
-    }
-
-    #results {
-      margin-top: 24px;
-      padding: 16px;
-      border-radius: 4px;
-      font-family: 'Courier New', Courier, monospace;
-      font-size: 14px;
-    }
-
-    #results.hidden {
-      display: none;
-    }
-
-    #results.valid {
-      background: #e6f4ea;
-      border: 1px solid #34a853;
-      color: #137333;
-    }
-
-    #results.invalid {
-      background: #fce8e6;
-      border: 1px solid #ea4335;
-      color: #c5221f;
-    }
-
-    .status {
-      font-weight: bold;
-      font-size: 16px;
-      margin-bottom: 12px;
-    }
-
-    .status.valid {
-      color: #137333;
-    }
-
-    .status.invalid {
-      color: #c5221f;
-    }
-
-    .error-list, .warning-list {
-      margin-top: 12px;
-    }
-
-    .error-item, .warning-item {
-      margin: 8px 0;
-      padding: 8px;
-      background: rgba(255, 255, 255, 0.5);
-      border-radius: 4px;
-    }
-
-    .error-item {
-      border-left: 3px solid #ea4335;
-    }
-
-    .warning-item {
-      border-left: 3px solid #fbbc04;
-      color: #b06000;
-    }
-
-    .field-path {
-      font-weight: bold;
-      color: #666;
-    }
-
-    .fix {
-      margin-top: 4px;
-      font-style: italic;
-      color: #555;
-    }
-
-    /* Loading state for button */
-    #validate-btn.loading {
-      opacity: 0.7;
-      cursor: not-allowed;
-    }
-
-    /* Source info in results */
-    .source-info {
-      font-size: 0.875rem;
-      color: #6b7280;
-      margin-bottom: 8px;
-    }
-
-    .status-warning {
-      color: #f59e0b;
-      font-size: 0.875rem;
-      margin-bottom: 8px;
-    }
-
-    /* Method selector */
-    .input-controls {
-      display: flex;
-      gap: 12px;
-      align-items: center;
-      margin-bottom: 16px;
-    }
-
-    #method-select {
-      padding: 8px 12px;
-      font-size: 14px;
-      font-family: 'Courier New', Courier, monospace;
-      border: 1px solid #ccc;
-      border-radius: 4px;
-      background: white;
-      cursor: pointer;
-    }
-
-    .method-label {
-      font-size: 14px;
-      color: #666;
-    }
-
-    /* Request info in results */
-    .request-info {
-      font-size: 0.875rem;
-      color: #6b7280;
-      margin-bottom: 8px;
-      font-family: 'Courier New', Courier, monospace;
-    }
-
-    .request-info .method {
-      font-weight: bold;
-      color: #0066ff;
-    }
-
-    /* Raw response toggle */
-    .raw-response {
-      margin-top: 16px;
-      border-top: 1px solid rgba(0,0,0,0.1);
-      padding-top: 12px;
-    }
-
-    .raw-response summary {
-      cursor: pointer;
-      font-size: 0.875rem;
-      color: #666;
-      user-select: none;
-    }
-
-    .raw-response summary:hover {
-      color: #333;
-    }
-
-    .raw-response pre {
-      margin-top: 8px;
-      padding: 12px;
-      background: rgba(0,0,0,0.05);
-      border-radius: 4px;
-      overflow-x: auto;
-      font-size: 12px;
-      max-height: 300px;
-      overflow-y: auto;
-    }
   </style>
 </head>
-<body>
-  <div id="app">
-    <h1>x402 Config Validator</h1>
-    <p class="subtitle">Validate your x402 payment configuration in under 30 seconds</p>
+<body class="bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 min-h-screen text-white">
+  <div class="max-w-4xl mx-auto px-4 py-12">
+    <!-- Header -->
+    <div class="text-center mb-10">
+      <h1 class="text-4xl font-bold bg-gradient-to-r from-blue-400 to-emerald-400 bg-clip-text text-transparent mb-3">
+        x402 Config Validator
+      </h1>
+      <p class="text-slate-400 text-lg">Validate your x402 payment configuration in seconds</p>
+    </div>
 
-    <details class="examples-section">
-      <summary class="examples-header">
-        <span>x402 Format Examples</span>
-        <span class="arrow">▶</span>
-      </summary>
-      <div class="examples-content">
-        <div class="example-tabs">
-          <button class="example-tab active" data-version="1">v1 (payments)</button>
-          <button class="example-tab" data-version="2">v2 (accepts)</button>
-        </div>
+    <!-- Main Card -->
+    <div class="bg-slate-800/50 backdrop-blur-sm rounded-2xl border border-slate-700 shadow-2xl overflow-hidden">
+      <!-- Examples Section -->
+      <details class="border-b border-slate-700">
+        <summary class="px-6 py-4 cursor-pointer flex justify-between items-center hover:bg-slate-700/30 transition-colors">
+          <span class="font-medium text-slate-300">x402 Format Examples</span>
+          <svg class="w-5 h-5 text-slate-400 transition-transform details-open:rotate-90" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+          </svg>
+        </summary>
+        <div class="px-6 py-4 bg-slate-800/50">
+          <!-- Tabs -->
+          <div class="flex gap-2 mb-4">
+            <button class="example-tab px-4 py-2 rounded-lg text-sm font-medium transition-all bg-blue-600 text-white" data-version="1">
+              v1 (payments)
+            </button>
+            <button class="example-tab px-4 py-2 rounded-lg text-sm font-medium transition-all bg-slate-700 text-slate-300 hover:bg-slate-600" data-version="2">
+              v2 (accepts)
+            </button>
+          </div>
 
-        <div id="example-v1" class="example-code">{
+          <!-- Code examples -->
+          <div id="example-v1" class="example-code bg-slate-900 rounded-lg p-4 font-mono text-sm overflow-x-auto whitespace-pre mb-4">{
   <span class="key">"x402Version"</span>: <span class="number">1</span>,
   <span class="key">"payments"</span>: [{
     <span class="key">"chain"</span>: <span class="string">"solana"</span>,
@@ -350,7 +65,7 @@
   }]
 }</div>
 
-        <div id="example-v2" class="example-code" style="display: none;">{
+          <div id="example-v2" class="example-code bg-slate-900 rounded-lg p-4 font-mono text-sm overflow-x-auto whitespace-pre mb-4 hidden">{
   <span class="key">"x402Version"</span>: <span class="number">2</span>,
   <span class="key">"accepts"</span>: [{
     <span class="key">"chain"</span>: <span class="string">"solana"</span>,
@@ -360,35 +75,60 @@
   }]
 }</div>
 
-        <div class="example-note">
-          <strong>Your endpoint should:</strong><br>
-          1. Return HTTP status <strong>402 Payment Required</strong><br>
-          2. Include config in <strong>PAYMENT-REQUIRED</strong> header (base64) or response body<br>
-          3. Supported chains: <strong>base</strong>, <strong>base-sepolia</strong>, <strong>solana</strong>, <strong>solana-devnet</strong>
+          <!-- Info box -->
+          <div class="bg-blue-500/10 border border-blue-500/30 rounded-lg p-4 text-sm">
+            <p class="font-semibold text-blue-400 mb-2">Your endpoint should:</p>
+            <ol class="text-slate-300 space-y-1 list-decimal list-inside">
+              <li>Return HTTP status <span class="text-blue-400 font-medium">402 Payment Required</span></li>
+              <li>Include config in <span class="text-blue-400 font-medium">PAYMENT-REQUIRED</span> header (base64) or response body</li>
+              <li>Supported chains: <span class="text-emerald-400 font-mono text-xs">base</span>, <span class="text-emerald-400 font-mono text-xs">base-sepolia</span>, <span class="text-emerald-400 font-mono text-xs">solana</span>, <span class="text-emerald-400 font-mono text-xs">solana-devnet</span></li>
+            </ol>
+          </div>
+
+          <button id="load-example-btn" class="mt-4 px-4 py-2 bg-slate-700 hover:bg-slate-600 rounded-lg text-sm font-medium transition-colors">
+            Load example into validator
+          </button>
         </div>
+      </details>
 
-        <button class="load-example-btn" id="load-example-btn">Load example into validator</button>
+      <!-- Input Section -->
+      <div class="p-6">
+        <textarea
+          id="config-input"
+          class="w-full h-64 bg-slate-900 border border-slate-600 rounded-xl p-4 font-mono text-sm text-slate-100 placeholder-slate-500 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 focus:outline-none resize-y transition-all"
+          placeholder="Paste a URL or x402 JSON config..."></textarea>
+
+        <!-- Controls -->
+        <div class="flex items-center gap-4 mt-4">
+          <div class="flex items-center gap-2">
+            <label class="text-sm text-slate-400">Method:</label>
+            <select id="method-select" class="bg-slate-700 border border-slate-600 rounded-lg px-3 py-2 text-sm font-mono focus:border-blue-500 focus:outline-none">
+              <option value="GET">GET</option>
+              <option value="POST">POST</option>
+              <option value="PUT">PUT</option>
+              <option value="DELETE">DELETE</option>
+              <option value="PATCH">PATCH</option>
+            </select>
+          </div>
+          <button
+            id="validate-btn"
+            class="flex-1 sm:flex-none px-8 py-3 bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-500 hover:to-blue-400 rounded-xl font-semibold transition-all shadow-lg shadow-blue-500/25 disabled:opacity-50 disabled:cursor-not-allowed">
+            Validate
+          </button>
+        </div>
       </div>
-    </details>
 
-    <textarea id="config-input" placeholder="Paste a URL or x402 JSON config..."></textarea>
-
-    <div class="input-controls">
-      <span class="method-label">HTTP Method:</span>
-      <select id="method-select">
-        <option value="GET" selected>GET</option>
-        <option value="POST">POST</option>
-        <option value="PUT">PUT</option>
-        <option value="DELETE">DELETE</option>
-        <option value="PATCH">PATCH</option>
-      </select>
-      <button id="validate-btn">Validate</button>
+      <!-- Results Section -->
+      <div id="results" class="hidden"></div>
     </div>
 
-    <div id="results" class="hidden"></div>
+    <!-- Footer -->
+    <p class="text-center text-slate-500 text-sm mt-8">
+      Validate x402 payment configs &bull; <a href="https://github.com/anthropics/x402" class="text-blue-400 hover:underline">x402 Protocol</a>
+    </p>
   </div>
 
-  <!-- CDN Libraries (load before app scripts) -->
+  <!-- CDN Libraries -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/5.7.2/ethers.umd.min.js" integrity="sha512-QED56W0x3KyGHKqd3XCcXEhk2F8e8s8qYqBa6BoHKWQGe3tuWtE3LXjKaXU0A9TXWz/JmSTdlJlBVPWM8d1aLA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
   <script src="https://cdn.jsdelivr.net/npm/bs58@6.0.0/dist/index.umd.js" integrity="sha512-A78lV0mETbjmjxh/m5Bq/gu9SNRfVzfX/A4b0kSHEozsz4PYLdPxFQKq7M8FdPPMvwq+9aJjx/xOjXABOvZGCQ==" crossorigin="anonymous"></script>
 
@@ -434,13 +174,17 @@
         const version = parseInt(tab.dataset.version);
         currentExampleVersion = version;
 
-        // Update active tab
-        document.querySelectorAll('.example-tab').forEach(t => t.classList.remove('active'));
-        tab.classList.add('active');
+        // Update active tab styling
+        document.querySelectorAll('.example-tab').forEach(t => {
+          t.classList.remove('bg-blue-600', 'text-white');
+          t.classList.add('bg-slate-700', 'text-slate-300', 'hover:bg-slate-600');
+        });
+        tab.classList.remove('bg-slate-700', 'text-slate-300', 'hover:bg-slate-600');
+        tab.classList.add('bg-blue-600', 'text-white');
 
         // Show corresponding example
-        document.getElementById('example-v1').style.display = version === 1 ? 'block' : 'none';
-        document.getElementById('example-v2').style.display = version === 2 ? 'block' : 'none';
+        document.getElementById('example-v1').classList.toggle('hidden', version !== 1);
+        document.getElementById('example-v2').classList.toggle('hidden', version !== 2);
       });
     });
 
@@ -455,14 +199,12 @@
       const method = methodSelect.value;
 
       if (!inputValue) {
-        resultsDiv.className = 'invalid';
-        resultsDiv.innerHTML = '<div class="status invalid">No input provided</div><p>Please paste a URL or JSON config in the textarea above.</p>';
+        displayError('No input provided. Please paste a URL or JSON config.');
         return;
       }
 
       // Disable button, show loading
       validateBtn.disabled = true;
-      validateBtn.classList.add('loading');
       const originalText = validateBtn.textContent;
       validateBtn.textContent = 'Validating...';
 
@@ -471,82 +213,97 @@
       } catch (error) {
         displayError(error.message);
       } finally {
-        // Always re-enable button
         validateBtn.disabled = false;
-        validateBtn.classList.remove('loading');
         validateBtn.textContent = originalText;
       }
     });
 
-    // Display validation results with source info
+    // Display validation results
     function displayResults(result) {
-      // Clear previous results
-      resultsDiv.className = '';
-      let html = '';
+      let html = '<div class="p-6 border-t border-slate-700">';
 
-      // Request info for URL fetches (not shown for direct input)
+      // Request info for URL fetches
       if (result.source && result.source !== 'direct input') {
-        html += `<div class="request-info"><span class="method">${result.method}</span> ${result.url} → ${result.source}</div>`;
+        html += `
+          <div class="font-mono text-sm text-slate-400 mb-3">
+            <span class="text-blue-400 font-semibold">${result.method}</span>
+            <span class="text-slate-500">${result.url}</span>
+            <span class="text-slate-600 mx-2">→</span>
+            <span>${result.source}</span>
+          </div>`;
       }
 
       // Status warning for non-402 responses
       if (result.warning) {
-        html += `<div class="status-warning">${result.warning}</div>`;
+        html += `<div class="text-amber-400 text-sm mb-3 flex items-center gap-2">
+          <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/></svg>
+          ${result.warning}
+        </div>`;
       }
 
-      // Show validation status
+      // Status badge
       if (result.valid) {
-        resultsDiv.className = 'valid';
-        const statusText = result.warnings.length > 0
-          ? `Valid (${result.warnings.length} warning${result.warnings.length > 1 ? 's' : ''})`
-          : 'Valid';
-        html += `<div class="status valid">&#10003; ${statusText}</div>`;
-
-        if (result.version) {
-          html += `<p>x402 version ${result.version} detected</p>`;
-        }
+        html += `
+          <div class="flex items-center gap-3 mb-4">
+            <div class="w-10 h-10 rounded-full bg-emerald-500/20 flex items-center justify-center">
+              <svg class="w-6 h-6 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+              </svg>
+            </div>
+            <div>
+              <div class="text-xl font-bold text-emerald-400">Valid</div>
+              <div class="text-sm text-slate-400">x402 version ${result.version}${result.warnings.length ? ` • ${result.warnings.length} warning${result.warnings.length > 1 ? 's' : ''}` : ''}</div>
+            </div>
+          </div>`;
       } else {
-        resultsDiv.className = 'invalid';
-        const errorText = result.errors.length > 1 ? 'errors' : 'error';
-        const warningText = result.warnings.length > 0
-          ? `, ${result.warnings.length} warning${result.warnings.length > 1 ? 's' : ''}`
-          : '';
-        html += `<div class="status invalid">&#10007; Invalid - ${result.errors.length} ${errorText}${warningText}</div>`;
+        html += `
+          <div class="flex items-center gap-3 mb-4">
+            <div class="w-10 h-10 rounded-full bg-red-500/20 flex items-center justify-center">
+              <svg class="w-6 h-6 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+              </svg>
+            </div>
+            <div>
+              <div class="text-xl font-bold text-red-400">Invalid</div>
+              <div class="text-sm text-slate-400">${result.errors.length} error${result.errors.length > 1 ? 's' : ''}${result.warnings.length ? ` • ${result.warnings.length} warning${result.warnings.length > 1 ? 's' : ''}` : ''}</div>
+            </div>
+          </div>`;
       }
 
       // Show errors
       if (result.errors.length > 0) {
-        html += '<div class="error-list"><strong>Errors:</strong>';
+        html += '<div class="space-y-2 mb-4">';
         result.errors.forEach(error => {
           html += `
-            <div class="error-item">
-              <div class="field-path">${error.field}</div>
-              <div>${error.message}</div>
-              <div class="fix">-> ${error.fix}</div>
-            </div>
-          `;
+            <div class="bg-red-500/10 border border-red-500/30 rounded-lg p-3">
+              <div class="font-mono text-sm text-red-400 font-semibold">${error.field}</div>
+              <div class="text-slate-300 text-sm mt-1">${error.message}</div>
+              <div class="text-slate-400 text-sm mt-1 flex items-start gap-1">
+                <span class="text-emerald-400">→</span> ${error.fix}
+              </div>
+            </div>`;
         });
         html += '</div>';
       }
 
       // Show warnings
       if (result.warnings.length > 0) {
-        html += '<div class="warning-list"><strong>Warnings:</strong>';
+        html += '<div class="space-y-2 mb-4">';
         result.warnings.forEach(warning => {
           html += `
-            <div class="warning-item">
-              <div class="field-path">${warning.field}</div>
-              <div>${warning.message}</div>
-              <div class="fix">-> ${warning.fix}</div>
-            </div>
-          `;
+            <div class="bg-amber-500/10 border border-amber-500/30 rounded-lg p-3">
+              <div class="font-mono text-sm text-amber-400 font-semibold">${warning.field}</div>
+              <div class="text-slate-300 text-sm mt-1">${warning.message}</div>
+              <div class="text-slate-400 text-sm mt-1 flex items-start gap-1">
+                <span class="text-emerald-400">→</span> ${warning.fix}
+              </div>
+            </div>`;
         });
         html += '</div>';
       }
 
-      // Show raw fetched config for URL fetches
+      // Raw fetched config
       if (result.fetchedConfig) {
-        // Pretty-print the JSON
         let formattedConfig;
         try {
           formattedConfig = JSON.stringify(JSON.parse(result.fetchedConfig), null, 2);
@@ -554,14 +311,17 @@
           formattedConfig = result.fetchedConfig;
         }
         html += `
-          <details class="raw-response">
-            <summary>View fetched config</summary>
-            <pre>${escapeHtml(formattedConfig)}</pre>
-          </details>
-        `;
+          <details class="mt-4">
+            <summary class="text-sm text-slate-400 cursor-pointer hover:text-slate-300 transition-colors">
+              View fetched response
+            </summary>
+            <pre class="mt-2 bg-slate-900 rounded-lg p-4 font-mono text-xs text-slate-300 overflow-x-auto max-h-64 overflow-y-auto">${escapeHtml(formattedConfig)}</pre>
+          </details>`;
       }
 
+      html += '</div>';
       resultsDiv.innerHTML = html;
+      resultsDiv.classList.remove('hidden');
     }
 
     // Escape HTML to prevent XSS
@@ -573,8 +333,21 @@
 
     // Display error message
     function displayError(message) {
-      resultsDiv.className = 'invalid';
-      resultsDiv.innerHTML = `<div class="status invalid">&#10007; Error</div><p>${message}</p>`;
+      resultsDiv.innerHTML = `
+        <div class="p-6 border-t border-slate-700">
+          <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-full bg-red-500/20 flex items-center justify-center">
+              <svg class="w-6 h-6 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+              </svg>
+            </div>
+            <div>
+              <div class="text-lg font-bold text-red-400">Error</div>
+              <div class="text-sm text-slate-400">${message}</div>
+            </div>
+          </div>
+        </div>`;
+      resultsDiv.classList.remove('hidden');
     }
   </script>
 </body>

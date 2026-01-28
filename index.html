@@ -36,7 +36,111 @@
 
     .subtitle {
       color: #666;
-      margin-bottom: 32px;
+      margin-bottom: 24px;
+    }
+
+    /* Examples section */
+    .examples-section {
+      margin-bottom: 24px;
+      border: 1px solid #e5e7eb;
+      border-radius: 8px;
+      overflow: hidden;
+    }
+
+    .examples-header {
+      background: #f9fafb;
+      padding: 12px 16px;
+      cursor: pointer;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-weight: 500;
+      user-select: none;
+    }
+
+    .examples-header:hover {
+      background: #f3f4f6;
+    }
+
+    .examples-header .arrow {
+      transition: transform 0.2s;
+    }
+
+    .examples-section[open] .arrow {
+      transform: rotate(90deg);
+    }
+
+    .examples-content {
+      padding: 16px;
+      border-top: 1px solid #e5e7eb;
+    }
+
+    .example-tabs {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+
+    .example-tab {
+      padding: 6px 12px;
+      border: 1px solid #d1d5db;
+      border-radius: 4px;
+      background: white;
+      cursor: pointer;
+      font-size: 14px;
+    }
+
+    .example-tab:hover {
+      background: #f9fafb;
+    }
+
+    .example-tab.active {
+      background: #0066ff;
+      color: white;
+      border-color: #0066ff;
+    }
+
+    .example-code {
+      background: #1e1e1e;
+      color: #d4d4d4;
+      padding: 16px;
+      border-radius: 4px;
+      font-family: 'Courier New', Courier, monospace;
+      font-size: 13px;
+      overflow-x: auto;
+      white-space: pre;
+      margin-bottom: 12px;
+    }
+
+    .example-code .key { color: #9cdcfe; }
+    .example-code .string { color: #ce9178; }
+    .example-code .number { color: #b5cea8; }
+
+    .example-note {
+      font-size: 13px;
+      color: #6b7280;
+      padding: 8px 12px;
+      background: #f9fafb;
+      border-radius: 4px;
+      border-left: 3px solid #0066ff;
+    }
+
+    .example-note strong {
+      color: #374151;
+    }
+
+    .load-example-btn {
+      padding: 6px 12px;
+      background: #f3f4f6;
+      border: 1px solid #d1d5db;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 13px;
+      margin-top: 8px;
+    }
+
+    .load-example-btn:hover {
+      background: #e5e7eb;
     }
 
     #config-input {
@@ -225,21 +329,49 @@
     <h1>x402 Config Validator</h1>
     <p class="subtitle">Validate your x402 payment configuration in under 30 seconds</p>
 
-    <textarea id="config-input" placeholder='Paste a URL or x402 JSON config...
+    <details class="examples-section">
+      <summary class="examples-header">
+        <span>x402 Format Examples</span>
+        <span class="arrow">▶</span>
+      </summary>
+      <div class="examples-content">
+        <div class="example-tabs">
+          <button class="example-tab active" data-version="1">v1 (payments)</button>
+          <button class="example-tab" data-version="2">v2 (accepts)</button>
+        </div>
 
-Example URL:
-https://your-api.com/protected-resource
-
-Example JSON:
-{
-  "x402Version": 1,
-  "payments": [{
-    "chain": "base",
-    "address": "0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045",
-    "asset": "USDC",
-    "minAmount": "1.00"
+        <div id="example-v1" class="example-code">{
+  <span class="key">"x402Version"</span>: <span class="number">1</span>,
+  <span class="key">"payments"</span>: [{
+    <span class="key">"chain"</span>: <span class="string">"solana"</span>,
+    <span class="key">"address"</span>: <span class="string">"5F5Yy9qJov8xK67vEWRoZHppWHEmH3WuG7mSfvLuqUTz"</span>,
+    <span class="key">"asset"</span>: <span class="string">"USDC"</span>,
+    <span class="key">"minAmount"</span>: <span class="string">"0.025"</span>
   }]
-}'></textarea>
+}</div>
+
+        <div id="example-v2" class="example-code" style="display: none;">{
+  <span class="key">"x402Version"</span>: <span class="number">2</span>,
+  <span class="key">"accepts"</span>: [{
+    <span class="key">"chain"</span>: <span class="string">"solana"</span>,
+    <span class="key">"payTo"</span>: <span class="string">"5F5Yy9qJov8xK67vEWRoZHppWHEmH3WuG7mSfvLuqUTz"</span>,
+    <span class="key">"asset"</span>: <span class="string">"USDC"</span>,
+    <span class="key">"price"</span>: <span class="string">"0.025"</span>
+  }]
+}</div>
+
+        <div class="example-note">
+          <strong>Your endpoint should:</strong><br>
+          1. Return HTTP status <strong>402 Payment Required</strong><br>
+          2. Include config in <strong>PAYMENT-REQUIRED</strong> header (base64) or response body<br>
+          3. Supported chains: <strong>base</strong>, <strong>base-sepolia</strong>, <strong>solana</strong>, <strong>solana-devnet</strong>
+        </div>
+
+        <button class="load-example-btn" id="load-example-btn">Load example into validator</button>
+      </div>
+    </details>
+
+    <textarea id="config-input" placeholder="Paste a URL or x402 JSON config..."></textarea>
 
     <div class="input-controls">
       <span class="method-label">HTTP Method:</span>
@@ -271,6 +403,51 @@ Example JSON:
     const validateBtn = document.getElementById('validate-btn');
     const methodSelect = document.getElementById('method-select');
     const resultsDiv = document.getElementById('results');
+
+    // Example configs
+    const examples = {
+      1: `{
+  "x402Version": 1,
+  "payments": [{
+    "chain": "solana",
+    "address": "5F5Yy9qJov8xK67vEWRoZHppWHEmH3WuG7mSfvLuqUTz",
+    "asset": "USDC",
+    "minAmount": "0.025"
+  }]
+}`,
+      2: `{
+  "x402Version": 2,
+  "accepts": [{
+    "chain": "solana",
+    "payTo": "5F5Yy9qJov8xK67vEWRoZHppWHEmH3WuG7mSfvLuqUTz",
+    "asset": "USDC",
+    "price": "0.025"
+  }]
+}`
+    };
+
+    let currentExampleVersion = 1;
+
+    // Example tab switching
+    document.querySelectorAll('.example-tab').forEach(tab => {
+      tab.addEventListener('click', () => {
+        const version = parseInt(tab.dataset.version);
+        currentExampleVersion = version;
+
+        // Update active tab
+        document.querySelectorAll('.example-tab').forEach(t => t.classList.remove('active'));
+        tab.classList.add('active');
+
+        // Show corresponding example
+        document.getElementById('example-v1').style.display = version === 1 ? 'block' : 'none';
+        document.getElementById('example-v2').style.display = version === 2 ? 'block' : 'none';
+      });
+    });
+
+    // Load example button
+    document.getElementById('load-example-btn').addEventListener('click', () => {
+      configInput.value = examples[currentExampleVersion];
+    });
 
     // Click handler with loading state
     validateBtn.addEventListener('click', async () => {

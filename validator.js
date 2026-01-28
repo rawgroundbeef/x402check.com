@@ -1,433 +1,440 @@
 /**
- * x402 Config Validation Engine
+ * x402 Config Validation Engine v2
  *
- * Validates x402 payment configurations against v1 and v2 schemas.
- * Returns detailed errors and warnings with field paths and fix suggestions.
+ * Supports all 3 real-world formats:
+ * - Flat (Simple): {amount, currency, network, payTo}
+ * - accepts (v1): {accepts: [{network, payTo, maxAmountRequired, asset}]}
+ * - payments (v2): {x402Version, payments: [{chain, address, asset, minAmount}]}
  */
+
+const SUPPORTED_CHAINS = ['solana', 'base', 'solana-devnet', 'base-sepolia'];
+
+const CHAIN_ASSETS = {
+  'solana': ['USDC', 'SOL'],
+  'solana-devnet': ['USDC', 'SOL'],
+  'base': ['USDC', 'ETH', 'USDT'],
+  'base-sepolia': ['USDC', 'ETH', 'USDT']
+};
+
+// Field aliases - map non-canonical to canonical
+const FIELD_ALIASES = {
+  address: ['payTo', 'pay_to'],
+  chain: ['network'],
+  minAmount: ['amount', 'maxAmountRequired', 'max_amount_required'],
+  asset: ['currency']
+};
+
+// Address validation patterns
+const ADDRESS_PATTERNS = {
+  solana: /^[1-9A-HJ-NP-Za-km-z]{32,44}$/,
+  base: /^0x[a-fA-F0-9]{40}$/,
+  'solana-devnet': /^[1-9A-HJ-NP-Za-km-z]{32,44}$/,
+  'base-sepolia': /^0x[a-fA-F0-9]{40}$/
+};
+
+/**
+ * Detect which format the config is using
+ */
+function detectFormat(config) {
+  if (config.x402Version && config.payments) {
+    if (config.metadata || config.outputSchema || config.inputSchema) {
+      return 'v2-marketplace';
+    }
+    return 'v2';
+  }
+  if (config.accepts) {
+    return 'v1';
+  }
+  // Flat format - has payment fields at root level
+  if (config.payTo || config.pay_to || config.address ||
+      config.amount || config.minAmount || config.maxAmountRequired) {
+    return 'flat';
+  }
+  return 'unknown';
+}
+
+/**
+ * Get a field value checking aliases
+ */
+function getField(obj, canonicalName) {
+  if (obj[canonicalName] !== undefined) {
+    return { value: obj[canonicalName], usedAlias: null };
+  }
+
+  const aliases = FIELD_ALIASES[canonicalName] || [];
+  for (const alias of aliases) {
+    if (obj[alias] !== undefined) {
+      return { value: obj[alias], usedAlias: alias };
+    }
+  }
+
+  return { value: undefined, usedAlias: null };
+}
+
+/**
+ * Normalize amount to human-readable format
+ * Large numbers (>1000) are assumed to be micro-units
+ */
+function normalizeAmount(value) {
+  if (value === undefined || value === null) {
+    return { normalized: null, original: value, isMicroUnits: false };
+  }
+
+  const num = typeof value === 'string' ? parseFloat(value) : value;
+
+  if (isNaN(num)) {
+    return { normalized: null, original: value, isMicroUnits: false, error: 'Invalid number' };
+  }
+
+  // Heuristic: if > 1000, assume micro-units (divide by 1,000,000)
+  const isMicroUnits = num > 1000;
+  const normalized = isMicroUnits ? num / 1_000_000 : num;
+
+  return {
+    normalized,
+    original: value,
+    isMicroUnits,
+    microUnits: isMicroUnits ? num : Math.round(normalized * 1_000_000)
+  };
+}
+
+/**
+ * Normalize config to canonical v2 format
+ */
+function normalizeConfig(config) {
+  const format = detectFormat(config);
+  const usedAliases = [];
+  let payments = [];
+
+  if (format === 'flat') {
+    // Convert flat to payments array
+    const payment = {};
+
+    const chain = getField(config, 'chain');
+    if (chain.usedAlias) usedAliases.push(`${chain.usedAlias} → chain`);
+    payment.chain = chain.value;
+
+    const address = getField(config, 'address');
+    if (address.usedAlias) usedAliases.push(`${address.usedAlias} → address`);
+    payment.address = address.value;
+
+    const asset = getField(config, 'asset');
+    if (asset.usedAlias) usedAliases.push(`${asset.usedAlias} → asset`);
+    payment.asset = asset.value;
+
+    const amount = getField(config, 'minAmount');
+    if (amount.usedAlias) usedAliases.push(`${amount.usedAlias} → minAmount`);
+    payment.minAmount = amount.value;
+
+    payments = [payment];
+  } else if (format === 'v1') {
+    // Convert accepts array to payments
+    payments = (config.accepts || []).map(item => {
+      const payment = {};
+
+      const chain = getField(item, 'chain');
+      if (chain.usedAlias) usedAliases.push(`${chain.usedAlias} → chain`);
+      payment.chain = chain.value;
+
+      const address = getField(item, 'address');
+      if (address.usedAlias) usedAliases.push(`${address.usedAlias} → address`);
+      payment.address = address.value;
+
+      const asset = getField(item, 'asset');
+      if (asset.usedAlias) usedAliases.push(`${asset.usedAlias} → asset`);
+      payment.asset = asset.value;
+
+      const amount = getField(item, 'minAmount');
+      if (amount.usedAlias) usedAliases.push(`${amount.usedAlias} → minAmount`);
+      payment.minAmount = amount.value;
+
+      return payment;
+    });
+  } else if (format === 'v2' || format === 'v2-marketplace') {
+    // Already in v2 format, but check for aliases within payments
+    payments = (config.payments || []).map(item => {
+      const payment = {};
+
+      const chain = getField(item, 'chain');
+      if (chain.usedAlias) usedAliases.push(`${chain.usedAlias} → chain`);
+      payment.chain = chain.value;
+
+      const address = getField(item, 'address');
+      if (address.usedAlias) usedAliases.push(`${address.usedAlias} → address`);
+      payment.address = address.value;
+
+      const asset = getField(item, 'asset');
+      if (asset.usedAlias) usedAliases.push(`${asset.usedAlias} → asset`);
+      payment.asset = asset.value;
+
+      const amount = getField(item, 'minAmount');
+      if (amount.usedAlias) usedAliases.push(`${amount.usedAlias} → minAmount`);
+      payment.minAmount = amount.value;
+
+      return payment;
+    });
+  }
+
+  return {
+    x402Version: config.x402Version || 1,
+    payments,
+    outputSchema: config.outputSchema,
+    inputSchema: config.inputSchema,
+    metadata: config.metadata,
+    _detectedFormat: format,
+    _usedAliases: [...new Set(usedAliases)] // dedupe
+  };
+}
+
+/**
+ * Validate address format for chain
+ */
+function validateAddress(address, chain) {
+  if (!address) return { valid: false, error: 'Missing address' };
+  if (!chain) return { valid: false, error: 'Cannot validate without chain' };
+
+  const pattern = ADDRESS_PATTERNS[chain];
+  if (!pattern) return { valid: false, error: `Unknown chain: ${chain}` };
+
+  // Check for wrong format
+  const isBase58 = /^[1-9A-HJ-NP-Za-km-z]{32,44}$/.test(address);
+  const isEVM = /^0x[a-fA-F0-9]{40}$/.test(address);
+
+  if ((chain === 'solana' || chain === 'solana-devnet') && isEVM) {
+    return { valid: false, error: 'EVM address format for Solana chain', detectedFormat: 'EVM' };
+  }
+  if ((chain === 'base' || chain === 'base-sepolia') && isBase58) {
+    return { valid: false, error: 'Solana address format for Base chain', detectedFormat: 'Solana' };
+  }
+
+  if (!pattern.test(address)) {
+    return { valid: false, error: 'Invalid address format' };
+  }
+
+  // For EVM, check checksum if mixed case
+  if (isEVM && address !== address.toLowerCase() && address !== address.toUpperCase()) {
+    try {
+      const checksummed = ethers.utils.getAddress(address);
+      if (address !== checksummed) {
+        return { valid: false, error: 'Invalid checksum', suggestion: checksummed };
+      }
+    } catch (e) {
+      return { valid: false, error: 'Invalid EVM address' };
+    }
+  }
+
+  return { valid: true };
+}
 
 /**
  * Main validation function
- * @param {string} configText - JSON string of x402 config
- * @returns {Object} { valid: boolean, version: number, errors: Array, warnings: Array }
  */
 function validateX402Config(configText) {
   const errors = [];
   const warnings = [];
 
-  // Layer 1: JSON Parse
+  // Parse JSON
   let config;
   try {
-    config = JSON.parse(configText);
+    config = typeof configText === 'string' ? JSON.parse(configText) : configText;
   } catch (e) {
-    const location = getJsonErrorLocation(e);
     return {
       valid: false,
-      version: null,
-      errors: [{
-        field: 'root',
-        message: `Invalid JSON syntax: ${e.message}`,
-        fix: location ? `Check syntax near ${location}` : 'Verify JSON is properly formatted'
-      }],
-      warnings: []
+      errors: [{ field: 'root', message: 'Invalid JSON', fix: 'Check syntax' }],
+      warnings: [],
+      detectedFormat: 'unknown'
     };
   }
 
-  // Layer 2: Version Check (VAL-01)
-  if (!config.x402Version) {
+  // Detect and normalize
+  const normalized = normalizeConfig(config);
+  const format = normalized._detectedFormat;
+
+  if (format === 'unknown') {
     errors.push({
-      field: 'x402Version',
-      message: 'Missing required field',
-      fix: 'Add "x402Version": 1 or "x402Version": 2 at top level'
+      field: 'root',
+      message: 'Unrecognized config format',
+      fix: 'Use flat, accepts (v1), or payments (v2) format'
     });
-    return { valid: false, version: null, errors, warnings };
+    return { valid: false, errors, warnings, detectedFormat: format };
   }
 
-  const version = config.x402Version;
-  if (![1, 2].includes(version)) {
-    errors.push({
-      field: 'x402Version',
-      message: `Invalid version: ${version}`,
-      fix: 'Use version 1 or 2'
+  // Alias warnings
+  if (normalized._usedAliases.length > 0) {
+    normalized._usedAliases.forEach(alias => {
+      warnings.push({
+        field: 'alias',
+        message: `Using "${alias.split(' → ')[0]}"`,
+        fix: `Consider "${alias.split(' → ')[1]}" for v2 compliance`
+      });
     });
-    return { valid: false, version: null, errors, warnings };
   }
 
-  // Layer 3: Payments Array (VAL-02)
-  const paymentsField = version === 1 ? 'payments' : 'accepts';
-  const addressField = version === 1 ? 'address' : 'payTo';
-  const amountField = version === 1 ? 'minAmount' : 'price';
-
-  if (!config[paymentsField]) {
-    errors.push({
-      field: paymentsField,
-      message: 'Missing required field',
-      fix: `Add "${paymentsField}": [...] with at least one payment option`
+  // Format upgrade suggestion
+  if (format === 'flat') {
+    warnings.push({
+      field: 'format',
+      message: 'Using flat format',
+      fix: 'Consider upgrading to v2 (payments array) for multi-chain support'
     });
-    return { valid: false, version, errors, warnings };
+  } else if (format === 'v1') {
+    warnings.push({
+      field: 'format',
+      message: 'Using v1 (accepts) format',
+      fix: 'Consider upgrading to v2 (payments array) for better compatibility'
+    });
   }
 
-  if (!Array.isArray(config[paymentsField])) {
+  // Validate payments
+  if (!normalized.payments || normalized.payments.length === 0) {
     errors.push({
-      field: paymentsField,
-      message: 'Must be an array',
-      fix: `Change "${paymentsField}" to an array: [...] `
+      field: 'payments',
+      message: 'No payment options found',
+      fix: 'Add at least one payment option'
     });
-    return { valid: false, version, errors, warnings };
+    return { valid: false, errors, warnings, detectedFormat: format, normalized };
   }
 
-  if (config[paymentsField].length === 0) {
-    errors.push({
-      field: paymentsField,
-      message: 'Array cannot be empty',
-      fix: 'Add at least one payment option to the array'
-    });
-    return { valid: false, version, errors, warnings };
-  }
+  // Validate each payment
+  normalized.payments.forEach((payment, i) => {
+    const prefix = normalized.payments.length > 1 ? `payments[${i}].` : '';
 
-  // Layer 4: Payment Entry Validation
-  config[paymentsField].forEach((payment, i) => {
-    const path = `${paymentsField}[${i}]`;
+    // Chain
+    if (!payment.chain) {
+      errors.push({
+        field: `${prefix}chain`,
+        message: 'Missing chain/network',
+        fix: `Add chain: one of ${SUPPORTED_CHAINS.join(', ')}`
+      });
+    } else if (!SUPPORTED_CHAINS.includes(payment.chain.toLowerCase())) {
+      errors.push({
+        field: `${prefix}chain`,
+        message: `Unknown chain "${payment.chain}"`,
+        fix: `Use one of: ${SUPPORTED_CHAINS.join(', ')}`
+      });
+    } else if (payment.chain !== payment.chain.toLowerCase()) {
+      warnings.push({
+        field: `${prefix}chain`,
+        message: `Chain should be lowercase`,
+        fix: `Use "${payment.chain.toLowerCase()}" instead of "${payment.chain}"`
+      });
+    }
 
-    // VAL-03: Required fields check
-    const requiredFields = {
-      'chain': 'Chain identifier (e.g., "base", "solana")',
-      [addressField]: 'Payment recipient address',
-      'asset': 'Asset symbol (e.g., "USDC", "ETH", "SOL")',
-      [amountField]: 'Minimum payment amount'
-    };
-
-    Object.entries(requiredFields).forEach(([field, description]) => {
-      if (!payment[field]) {
+    // Address
+    if (!payment.address) {
+      errors.push({
+        field: `${prefix}address`,
+        message: 'Missing payment address',
+        fix: 'Add address (or payTo for flat format)'
+      });
+    } else if (payment.chain) {
+      const addrValidation = validateAddress(payment.address, payment.chain.toLowerCase());
+      if (!addrValidation.valid) {
         errors.push({
-          field: `${path}.${field}`,
-          message: 'Missing required field',
-          fix: `Add "${field}": "${description}"`
+          field: `${prefix}address`,
+          message: addrValidation.error,
+          fix: addrValidation.suggestion ? `Use: ${addrValidation.suggestion}` : 'Check address format'
         });
       }
-    });
-
-    // Skip further validation if required fields missing
-    if (!payment.chain || !payment[addressField] || !payment.asset || !payment[amountField]) {
-      return;
     }
 
-    // VAL-04: Chain validation
-    if (!isKnownChain(payment.chain)) {
+    // Amount
+    if (payment.minAmount === undefined && payment.minAmount === null) {
       errors.push({
-        field: `${path}.chain`,
-        message: `Unknown chain: "${payment.chain}"`,
-        fix: 'Use one of: base, base-sepolia, solana, solana-devnet'
+        field: `${prefix}minAmount`,
+        message: 'Missing amount',
+        fix: 'Add minAmount (or amount for flat format)'
       });
-      return; // Can't validate address without knowing chain type
-    }
-
-    // VAL-05, VAL-06: Address validation
-    const address = payment[addressField];
-    const addressValidation = validateAddress(address, payment.chain, `${path}.${addressField}`);
-    errors.push(...addressValidation.errors);
-    warnings.push(...addressValidation.warnings);
-
-    // VAL-07: Asset validation
-    if (!isValidAssetForChain(payment.chain, payment.asset)) {
-      const chainType = getChainType(payment.chain);
-      const validAssets = chainType === 'evm' ? 'USDC, ETH, USDT' : 'USDC, SOL';
-      errors.push({
-        field: `${path}.asset`,
-        message: `"${payment.asset}" is not valid for ${payment.chain}`,
-        fix: `Use one of: ${validAssets}`
-      });
-    }
-
-    // VAL-08: Amount validation
-    const amountValidation = validatePositiveDecimal(payment[amountField], `${path}.${amountField}`);
-    errors.push(...amountValidation.errors);
-
-    // VAL-09: Optional fields
-    if (payment.facilitator) {
-      const facilitatorValidation = validateFacilitator(payment.facilitator, `${path}.facilitator`);
-      warnings.push(...facilitatorValidation.warnings);
-    }
-
-    if (payment.maxAmount) {
-      const minAmount = parseFloat(payment[amountField]);
-      const maxAmount = parseFloat(payment.maxAmount);
-
-      if (!isNaN(minAmount) && !isNaN(maxAmount) && maxAmount < minAmount) {
+    } else {
+      const amountResult = normalizeAmount(payment.minAmount);
+      if (amountResult.error) {
         errors.push({
-          field: `${path}.maxAmount`,
-          message: `maxAmount (${maxAmount}) is less than ${amountField} (${minAmount})`,
-          fix: `Set maxAmount >= ${minAmount} or remove maxAmount field`
+          field: `${prefix}minAmount`,
+          message: `Invalid amount: ${amountResult.error}`,
+          fix: 'Use a valid number like "0.025" or 0.025'
+        });
+      } else if (amountResult.normalized <= 0) {
+        errors.push({
+          field: `${prefix}minAmount`,
+          message: 'Amount must be greater than 0',
+          fix: 'Use a positive amount'
+        });
+      } else if (amountResult.isMicroUnits) {
+        warnings.push({
+          field: `${prefix}minAmount`,
+          message: `Detected micro-units (${amountResult.original})`,
+          fix: `Human-readable: ${amountResult.normalized}`
+        });
+      }
+      payment._normalizedAmount = amountResult;
+    }
+
+    // Asset
+    if (!payment.asset) {
+      errors.push({
+        field: `${prefix}asset`,
+        message: 'Missing asset/currency',
+        fix: 'Add asset: USDC, ETH, SOL, etc.'
+      });
+    } else if (payment.chain) {
+      const chainLower = payment.chain.toLowerCase();
+      const validAssets = CHAIN_ASSETS[chainLower] || [];
+      // Check if it's a known symbol or looks like a contract address
+      const isContractAddress = /^[1-9A-HJ-NP-Za-km-z]{32,44}$/.test(payment.asset) ||
+                                /^0x[a-fA-F0-9]{40}$/.test(payment.asset);
+      if (!validAssets.includes(payment.asset.toUpperCase()) && !isContractAddress) {
+        warnings.push({
+          field: `${prefix}asset`,
+          message: `Unknown asset "${payment.asset}" for ${chainLower}`,
+          fix: `Common assets: ${validAssets.join(', ')}`
         });
       }
     }
   });
 
-  // VAL-10: Return with error/warning separation
+  // Marketplace readiness checks
+  if (format === 'v2' || format === 'v2-marketplace') {
+    if (!normalized.outputSchema) {
+      warnings.push({
+        field: 'outputSchema',
+        message: 'No outputSchema provided',
+        fix: 'Add outputSchema for agent compatibility'
+      });
+    }
+    if (!normalized.metadata) {
+      warnings.push({
+        field: 'metadata',
+        message: 'No marketplace metadata',
+        fix: 'Add metadata (name, description) for marketplace listing'
+      });
+    }
+  }
+
   return {
     valid: errors.length === 0,
-    version,
     errors,
-    warnings
+    warnings,
+    detectedFormat: format,
+    normalized,
+    version: normalized.x402Version
   };
 }
 
 /**
- * Validate address format and checksum
- * @param {string} address - Address to validate
- * @param {string} chain - Chain identifier
- * @param {string} fieldPath - Field path for error reporting
- * @returns {Object} { errors: Array, warnings: Array }
+ * Generate v2 equivalent of a config
  */
-function validateAddress(address, chain, fieldPath) {
-  const errors = [];
-  const warnings = [];
+function generateV2Equivalent(config) {
+  const normalized = normalizeConfig(config);
 
-  if (isEVMChain(chain)) {
-    const evmValidation = validateEvmAddress(address, fieldPath);
-    errors.push(...evmValidation.errors);
-    warnings.push(...evmValidation.warnings);
-  } else if (isSolanaChain(chain)) {
-    const solanaValidation = validateSolanaAddress(address, fieldPath);
-    errors.push(...solanaValidation.errors);
-    warnings.push(...solanaValidation.warnings);
-  }
+  const v2Config = {
+    x402Version: 1,
+    payments: normalized.payments.map(p => ({
+      chain: (p.chain || '').toLowerCase(),
+      address: p.address,
+      asset: (p.asset || '').toUpperCase(),
+      minAmount: p._normalizedAmount ? String(p._normalizedAmount.normalized) : p.minAmount
+    }))
+  };
 
-  return { errors, warnings };
-}
-
-/**
- * Validate EVM address with checksum (VAL-05)
- * @param {string} address - EVM address
- * @param {string} fieldPath - Field path for error reporting
- * @returns {Object} { errors: Array, warnings: Array }
- */
-function validateEvmAddress(address, fieldPath) {
-  const errors = [];
-  const warnings = [];
-
-  // Check basic format
-  if (!address.startsWith('0x')) {
-    errors.push({
-      field: fieldPath,
-      message: `"${address}" is not a valid EVM address`,
-      fix: 'EVM addresses must start with "0x"'
-    });
-    return { errors, warnings };
-  }
-
-  if (address.length !== 42) {
-    errors.push({
-      field: fieldPath,
-      message: `"${address}" is not a valid EVM address`,
-      fix: 'EVM addresses are 42 characters (0x + 40 hex digits)'
-    });
-    return { errors, warnings };
-  }
-
-  // Validate with ethers.js (includes checksum validation)
-  try {
-    const checksummed = ethers.utils.getAddress(address);
-
-    // Check if input had mixed case (implies checksum intent)
-    const hasMixedCase = address !== address.toLowerCase() && address !== address.toUpperCase();
-
-    if (hasMixedCase && address !== checksummed) {
-      errors.push({
-        field: fieldPath,
-        message: 'Address has invalid checksum',
-        fix: `Use checksummed address: ${checksummed}`
-      });
-    }
-
-    // Warn if all lowercase (valid but lacks checksum protection)
-    if (address === address.toLowerCase()) {
-      warnings.push({
-        field: fieldPath,
-        message: 'Address is all lowercase (valid but no checksum protection)',
-        fix: `Consider using checksummed format: ${checksummed}`
-      });
-    }
-  } catch (e) {
-    errors.push({
-      field: fieldPath,
-      message: `Invalid EVM address format: ${e.message}`,
-      fix: 'EVM addresses must be 42 hex characters (0x + 40 hex digits)'
-    });
-  }
-
-  return { errors, warnings };
-}
-
-/**
- * Validate Solana address (VAL-06)
- * @param {string} address - Solana address
- * @param {string} fieldPath - Field path for error reporting
- * @returns {Object} { errors: Array, warnings: Array }
- */
-function validateSolanaAddress(address, fieldPath) {
-  const errors = [];
-  const warnings = [];
-
-  // Check for EVM format (common mistake)
-  if (address.startsWith('0x')) {
-    errors.push({
-      field: fieldPath,
-      message: 'EVM address format detected for Solana chain',
-      fix: 'Solana addresses use Base58 encoding (no 0x prefix)'
-    });
-    return { errors, warnings };
-  }
-
-  // Basic format check
-  if (!/^[1-9A-HJ-NP-Za-km-z]{32,44}$/.test(address)) {
-    errors.push({
-      field: fieldPath,
-      message: `"${address}" is not a valid Solana address`,
-      fix: 'Solana addresses use Base58 encoding (32-44 characters, no 0/O/I/l)'
-    });
-    return { errors, warnings };
-  }
-
-  // Decode and verify length
-  try {
-    const decoded = bs58.decode(address);
-
-    if (decoded.length !== 32) {
-      errors.push({
-        field: fieldPath,
-        message: `Address decodes to ${decoded.length} bytes (expected 32)`,
-        fix: 'Verify the address is complete and unmodified'
-      });
-    }
-  } catch (e) {
-    errors.push({
-      field: fieldPath,
-      message: 'Invalid Base58 encoding',
-      fix: 'Check for invalid characters in address'
-    });
-  }
-
-  return { errors, warnings };
-}
-
-/**
- * Validate positive decimal amount (VAL-08)
- * @param {string|number} value - Amount value
- * @param {string} fieldPath - Field path for error reporting
- * @returns {Object} { errors: Array }
- */
-function validatePositiveDecimal(value, fieldPath) {
-  const errors = [];
-
-  // Check type
-  if (typeof value !== 'string' && typeof value !== 'number') {
-    errors.push({
-      field: fieldPath,
-      message: 'Must be a number or numeric string',
-      fix: 'Use format like "1.00" or 1.00'
-    });
-    return { errors };
-  }
-
-  const str = String(value);
-
-  // Reject scientific notation
-  if (/[eE]/.test(str)) {
-    errors.push({
-      field: fieldPath,
-      message: 'Scientific notation not allowed',
-      fix: 'Use decimal format (e.g., "1.50" instead of "1.5e0")'
-    });
-    return { errors };
-  }
-
-  // Parse and validate
-  const num = parseFloat(str);
-
-  if (isNaN(num)) {
-    errors.push({
-      field: fieldPath,
-      message: `"${value}" is not a valid number`,
-      fix: 'Use a positive decimal number (e.g., "1.00")'
-    });
-    return { errors };
-  }
-
-  if (num <= 0) {
-    errors.push({
-      field: fieldPath,
-      message: `Amount must be greater than zero (got ${value})`,
-      fix: 'Use a positive amount (e.g., "1.00")'
-    });
-    return { errors };
-  }
-
-  // Validate decimal format
-  if (!/^\d+(\.\d+)?$/.test(str)) {
-    errors.push({
-      field: fieldPath,
-      message: `Invalid decimal format: "${value}"`,
-      fix: 'Use positive decimal format (e.g., "1.50")'
-    });
-  }
-
-  return { errors };
-}
-
-/**
- * Validate facilitator object (VAL-09)
- * @param {Object} facilitator - Facilitator configuration
- * @param {string} fieldPath - Field path for error reporting
- * @returns {Object} { warnings: Array }
- */
-function validateFacilitator(facilitator, fieldPath) {
-  const warnings = [];
-
-  if (facilitator.url) {
-    const url = facilitator.url;
-
-    // Check if HTTP instead of HTTPS
-    if (url.startsWith('http://')) {
-      warnings.push({
-        field: `${fieldPath}.url`,
-        message: 'Facilitator URL uses HTTP instead of HTTPS',
-        fix: 'Use HTTPS for secure communication'
-      });
-    }
-
-    // Basic URL validation
-    try {
-      new URL(url);
-    } catch (e) {
-      warnings.push({
-        field: `${fieldPath}.url`,
-        message: `Invalid URL format: ${url}`,
-        fix: 'Use complete URL with protocol (e.g., "https://example.com")'
-      });
-    }
-  }
-
-  return { warnings };
-}
-
-/**
- * Extract line/column information from JSON parse error
- * @param {Error} error - JSON parse error
- * @returns {string|null} - Location description or null
- */
-function getJsonErrorLocation(error) {
-  const message = error.message;
-
-  // Try to extract position from error message
-  const positionMatch = message.match(/position (\d+)/);
-  if (positionMatch) {
-    return `position ${positionMatch[1]}`;
-  }
-
-  const lineMatch = message.match(/line (\d+)/);
-  if (lineMatch) {
-    return `line ${lineMatch[1]}`;
-  }
-
-  return null;
+  return JSON.stringify(v2Config, null, 2);
 }

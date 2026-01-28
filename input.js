@@ -1,20 +1,14 @@
 /**
- * x402 Input Handler
+ * x402 Input Handler v2
  *
- * Provides smart input detection (URL vs JSON), URL fetching via CORS proxy,
- * and x402 config extraction from PAYMENT-REQUIRED header or response body.
+ * Smart input detection, URL testing with checklist, config extraction.
  */
 
-// CORS Proxy deployed in Plan 02-01
 const PROXY_URL = 'https://x402-proxy.mail-753.workers.dev';
-
-// Timeout for URL fetches
-const FETCH_TIMEOUT_MS = 5000;
+const FETCH_TIMEOUT_MS = 10000;
 
 /**
  * Detect input type based on content
- * @param {string} input - Raw user input
- * @returns {'url' | 'json'} - Detected input type
  */
 function detectInputType(input) {
   const trimmed = input.trim();
@@ -25,24 +19,18 @@ function detectInputType(input) {
 }
 
 /**
- * Fetch x402 config from a URL via CORS proxy
- * @param {string} url - Target URL to fetch
- * @param {string} method - HTTP method (GET, POST, etc.)
- * @param {string} proxyBaseUrl - Proxy base URL (defaults to PROXY_URL)
- * @returns {Promise<Object>} - { config: string, source: string, status: number, method: string, warning?: string }
+ * Test a URL and return checklist results
  */
-async function fetchConfigFromUrl(url, method = 'GET', proxyBaseUrl = PROXY_URL) {
-  // Step 1: Validate URL format
+async function testX402Url(url, method = 'GET', body = null) {
+  // Validate URL
   try {
     new URL(url);
   } catch (e) {
     throw new Error('Invalid URL format');
   }
 
-  // Step 2: Build proxy URL with method
-  const proxyUrl = `${proxyBaseUrl}?url=${encodeURIComponent(url)}&method=${encodeURIComponent(method)}`;
+  const proxyUrl = `${PROXY_URL}?url=${encodeURIComponent(url)}&method=${encodeURIComponent(method)}`;
 
-  // Step 3: Fetch with timeout
   let response;
   try {
     response = await fetch(proxyUrl, {
@@ -50,95 +38,131 @@ async function fetchConfigFromUrl(url, method = 'GET', proxyBaseUrl = PROXY_URL)
     });
   } catch (error) {
     if (error.name === 'TimeoutError') {
-      throw new Error('Request timeout after 5 seconds - Check URL is reachable');
-    }
-    if (error.name === 'AbortError') {
-      throw new Error('Request was cancelled');
+      throw new Error('Request timeout - endpoint may be unreachable');
     }
     throw new Error(`Network error: ${error.message}`);
   }
 
-  // Step 4: Check response status (402 is expected for x402 endpoints)
-  if (!response.ok && response.status !== 402) {
-    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-  }
+  // Build checklist
+  const checks = {
+    returns402: {
+      pass: response.status === 402,
+      label: 'Returns 402',
+      detail: response.status === 402 ? null : `Returned ${response.status}`
+    },
+    hasConfig: {
+      pass: false,
+      label: 'Valid payment config',
+      detail: null
+    },
+    hasHeader: {
+      pass: !!response.headers.get('PAYMENT-REQUIRED'),
+      label: 'PAYMENT-REQUIRED header',
+      detail: response.headers.get('PAYMENT-REQUIRED') ? 'Present (base64)' : 'Not present (optional)'
+    },
+    hasCors: {
+      pass: true, // If we got here through proxy, CORS is handled
+      label: 'CORS accessible',
+      detail: 'Via proxy'
+    }
+  };
 
-  // Step 5: Extract config
-  const result = await extractX402Config(response);
-  result.method = method;
-  result.url = url;
-  return result;
-}
+  // Try to extract config
+  let config = null;
+  let configSource = null;
 
-/**
- * Extract x402 config from response (header-first, body fallback)
- * @param {Response} response - Fetch response object
- * @returns {Promise<Object>} - { config: string, source: string, status: number, warning?: string }
- */
-async function extractX402Config(response) {
-  const status = response.status;
-
-  // Priority 1: Check PAYMENT-REQUIRED header (x402 v2 standard)
+  // Priority 1: PAYMENT-REQUIRED header
   const paymentHeader = response.headers.get('PAYMENT-REQUIRED');
   if (paymentHeader) {
-    // Try base64 decode first
     try {
       const decoded = atob(paymentHeader);
-      const parsed = JSON.parse(decoded);
-      return {
-        config: JSON.stringify(parsed, null, 2),
-        source: 'PAYMENT-REQUIRED header',
-        status
-      };
-    } catch (base64Error) {
-      // Try direct JSON parse (fallback for non-base64)
+      config = JSON.parse(decoded);
+      configSource = 'PAYMENT-REQUIRED header';
+    } catch (e) {
       try {
-        const parsed = JSON.parse(paymentHeader);
-        return {
-          config: JSON.stringify(parsed, null, 2),
-          source: 'PAYMENT-REQUIRED header',
-          status
-        };
-      } catch (jsonError) {
-        // Header exists but not valid - continue to body fallback
+        config = JSON.parse(paymentHeader);
+        configSource = 'PAYMENT-REQUIRED header (raw JSON)';
+      } catch (e2) {
+        // Header exists but invalid
       }
     }
   }
 
-  // Priority 2: Check response body (v1 compatibility)
-  const contentType = response.headers.get('Content-Type') || '';
-  if (contentType.includes('application/json')) {
-    const bodyText = await response.text();
-
-    // Validate JSON
-    try {
-      JSON.parse(bodyText);
-    } catch (e) {
-      throw new Error('No x402 Config Found - Response body is not valid JSON');
+  // Priority 2: Response body
+  if (!config) {
+    const contentType = response.headers.get('Content-Type') || '';
+    if (contentType.includes('application/json') || contentType.includes('text/')) {
+      try {
+        const bodyText = await response.text();
+        config = JSON.parse(bodyText);
+        configSource = 'response body';
+      } catch (e) {
+        // Not valid JSON
+      }
     }
-
-    const result = {
-      config: bodyText,
-      source: 'response body',
-      status
-    };
-
-    // Add warning for non-402 responses
-    if (status !== 402) {
-      result.warning = `Response status: ${status} - x402 endpoints should return 402 Payment Required`;
-    }
-
-    return result;
   }
 
-  // Neither header nor body has config
-  throw new Error('No x402 Config Found - Response had no PAYMENT-REQUIRED header or valid JSON body');
+  if (config) {
+    checks.hasConfig.pass = true;
+    checks.hasConfig.detail = `Found in ${configSource}`;
+  } else {
+    checks.hasConfig.detail = 'No valid JSON config found';
+  }
+
+  // Validate if we have config
+  let validation = null;
+  if (config) {
+    validation = validateX402Config(config);
+
+    // Add format check
+    checks.formatCheck = {
+      pass: validation.detectedFormat === 'v2' || validation.detectedFormat === 'v2-marketplace',
+      label: 'Using v2 format',
+      detail: validation.detectedFormat === 'v2' || validation.detectedFormat === 'v2-marketplace'
+        ? 'Canonical format'
+        : `Using ${validation.detectedFormat} format`
+    };
+  }
+
+  return {
+    checks,
+    config,
+    configSource,
+    validation,
+    status: response.status,
+    method,
+    url
+  };
 }
 
 /**
- * Format JSON string for display (pretty print)
- * @param {string} jsonString - JSON string to format
- * @returns {string} - Formatted JSON or original if invalid
+ * Main handler for validation
+ */
+async function handleValidation(inputValue, method, displayResultsFn, displayErrorFn) {
+  const inputType = detectInputType(inputValue);
+
+  try {
+    if (inputType === 'url') {
+      const result = await testX402Url(inputValue, method);
+      displayResultsFn({
+        type: 'url',
+        ...result
+      });
+    } else {
+      const validation = validateX402Config(inputValue);
+      displayResultsFn({
+        type: 'json',
+        validation,
+        config: validation.normalized
+      });
+    }
+  } catch (error) {
+    displayErrorFn(error.message);
+  }
+}
+
+/**
+ * Format JSON for display
  */
 function formatJsonForDisplay(jsonString) {
   try {
@@ -146,46 +170,5 @@ function formatJsonForDisplay(jsonString) {
     return JSON.stringify(parsed, null, 2);
   } catch (e) {
     return jsonString;
-  }
-}
-
-/**
- * Main entry point for validation - called by index.html
- * @param {string} inputValue - User input (URL or JSON)
- * @param {string} method - HTTP method for URL fetches
- * @param {Function} displayResultsFn - Function to display results
- * @param {Function} displayErrorFn - Function to display errors
- */
-async function handleValidation(inputValue, method, displayResultsFn, displayErrorFn) {
-  const inputType = detectInputType(inputValue);
-
-  try {
-    if (inputType === 'url') {
-      // Fetch config from URL
-      const result = await fetchConfigFromUrl(inputValue, method);
-
-      // Validate fetched config
-      const validationResult = validateX402Config(result.config);
-
-      // Combine results with source info
-      displayResultsFn({
-        ...validationResult,
-        source: result.source,
-        method: result.method,
-        url: result.url,
-        fetchedConfig: result.config,
-        warning: result.warning
-      });
-    } else {
-      // Validate JSON directly
-      const validationResult = validateX402Config(inputValue);
-
-      displayResultsFn({
-        ...validationResult,
-        source: 'direct input'
-      });
-    }
-  } catch (error) {
-    displayErrorFn(error.message);
   }
 }

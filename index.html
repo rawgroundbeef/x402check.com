@@ -3,59 +3,749 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>x402 Config Validator</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <script>
-    tailwind.config = {
-      theme: {
-        extend: {
-          fontFamily: {
-            mono: ['JetBrains Mono', 'Fira Code', 'Consolas', 'monospace'],
-          }
-        }
-      }
-    }
-  </script>
+  <title>x402check — Validate x402 Payment Configs</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
   <style>
-    /* Custom styles that Tailwind can't easily do */
-    .example-code .key { color: #9cdcfe; }
-    .example-code .string { color: #ce9178; }
-    .example-code .number { color: #b5cea8; }
+    :root {
+      --bg-deep: #0a0f14;
+      --bg-surface: #111820;
+      --bg-elevated: #1a2332;
+      --border: #252d3a;
+      --text-primary: #e6edf3;
+      --text-secondary: #8b949e;
+      --text-muted: #5c6670;
+      --accent: #00d992;
+      --accent-dim: rgba(0, 217, 146, 0.15);
+      --error: #f85149;
+      --error-dim: rgba(248, 81, 73, 0.15);
+      --warning: #d29922;
+      --warning-dim: rgba(210, 153, 34, 0.15);
+      --info: #58a6ff;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Outfit', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: var(--bg-deep);
+      color: var(--text-primary);
+      line-height: 1.6;
+      min-height: 100vh;
+    }
+
+    .container {
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 48px 24px;
+    }
+
+    /* Header */
+    .header {
+      text-align: center;
+      margin-bottom: 40px;
+    }
+
+    .logo {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 36px;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+
+    .logo-402 {
+      color: var(--text-primary);
+    }
+
+    .logo-check {
+      background: linear-gradient(135deg, var(--accent), #00b377);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .logo-icon {
+      width: 32px;
+      height: 32px;
+      background: var(--accent);
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .logo-icon svg {
+      width: 20px;
+      height: 20px;
+      color: var(--bg-deep);
+    }
+
+    .tagline {
+      color: var(--text-secondary);
+      font-size: 16px;
+    }
+
+    /* Card */
+    .card {
+      background: var(--bg-surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      overflow: hidden;
+    }
+
+    /* Examples Section */
+    .examples-section {
+      border-bottom: 1px solid var(--border);
+    }
+
+    .examples-header {
+      padding: 16px 20px;
+      cursor: pointer;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-weight: 500;
+      color: var(--text-secondary);
+      transition: background 0.15s;
+    }
+
+    .examples-header:hover {
+      background: var(--bg-elevated);
+    }
+
+    .examples-section[open] .examples-header {
+      border-bottom: 1px solid var(--border);
+    }
+
+    .examples-section[open] .arrow {
+      transform: rotate(90deg);
+    }
+
+    .arrow {
+      transition: transform 0.15s;
+      color: var(--text-muted);
+    }
+
+    .examples-content {
+      padding: 20px;
+      background: rgba(0,0,0,0.2);
+    }
+
+    /* Tabs */
+    .tabs {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 16px;
+      flex-wrap: wrap;
+    }
+
+    .tab {
+      padding: 8px 14px;
+      background: var(--bg-elevated);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      color: var(--text-secondary);
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+
+    .tab:hover {
+      border-color: var(--text-muted);
+      color: var(--text-primary);
+    }
+
+    .tab.active {
+      background: var(--accent);
+      border-color: var(--accent);
+      color: var(--bg-deep);
+    }
+
+    /* Code Block */
+    .code-block {
+      background: var(--bg-deep);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 16px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px;
+      overflow-x: auto;
+      margin-bottom: 16px;
+      white-space: pre;
+      line-height: 1.5;
+    }
+
+    .code-block .key { color: #9cdcfe; }
+    .code-block .string { color: #ce9178; }
+    .code-block .number { color: #b5cea8; }
+
+    .example-helper {
+      font-size: 13px;
+      color: var(--text-secondary);
+      margin-bottom: 12px;
+      padding: 12px;
+      background: var(--bg-elevated);
+      border-radius: 8px;
+      border-left: 3px solid var(--info);
+    }
+
+    .load-btn {
+      padding: 10px 16px;
+      background: var(--bg-elevated);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      color: var(--text-primary);
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+
+    .load-btn:hover {
+      background: var(--border);
+    }
+
+    /* Input Section */
+    .input-section {
+      padding: 20px;
+    }
+
+    .input-wrapper {
+      position: relative;
+    }
+
+    textarea {
+      width: 100%;
+      height: 160px;
+      background: var(--bg-deep);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 16px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 13px;
+      color: var(--text-primary);
+      resize: vertical;
+      transition: border-color 0.15s;
+    }
+
+    textarea::placeholder {
+      color: var(--text-muted);
+    }
+
+    textarea:focus {
+      outline: none;
+      border-color: var(--accent);
+    }
+
+    /* Controls */
+    .controls {
+      display: flex;
+      gap: 12px;
+      margin-top: 16px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    .method-group {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .method-label {
+      font-size: 13px;
+      color: var(--text-secondary);
+    }
+
+    select {
+      background: var(--bg-elevated);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 10px 12px;
+      color: var(--text-primary);
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 13px;
+      cursor: pointer;
+    }
+
+    select:focus {
+      outline: none;
+      border-color: var(--accent);
+    }
+
+    .validate-btn {
+      flex: 1;
+      min-width: 140px;
+      padding: 12px 24px;
+      background: var(--accent);
+      border: none;
+      border-radius: 10px;
+      color: var(--bg-deep);
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.15s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+
+    .validate-btn:hover {
+      filter: brightness(1.1);
+    }
+
+    .validate-btn:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+
+    /* Results */
+    .results {
+      border-top: 1px solid var(--border);
+      padding: 20px;
+    }
+
+    .results.hidden {
+      display: none;
+    }
+
+    /* Checklist */
+    .checklist {
+      margin-bottom: 20px;
+    }
+
+    .check-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      padding: 8px 0;
+      font-size: 14px;
+    }
+
+    .check-icon {
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      margin-top: 1px;
+    }
+
+    .check-icon.pass {
+      background: var(--accent-dim);
+      color: var(--accent);
+    }
+
+    .check-icon.fail {
+      background: var(--error-dim);
+      color: var(--error);
+    }
+
+    .check-icon.warn {
+      background: var(--warning-dim);
+      color: var(--warning);
+    }
+
+    .check-label {
+      color: var(--text-primary);
+    }
+
+    .check-detail {
+      color: var(--text-muted);
+      font-size: 12px;
+    }
+
+    /* Format Badge */
+    .format-badge-section {
+      background: var(--bg-elevated);
+      border-radius: 10px;
+      padding: 16px;
+      margin-bottom: 20px;
+    }
+
+    .format-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .format-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 12px;
+      background: var(--bg-deep);
+      border-radius: 6px;
+      font-size: 12px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .format-badge.v2 {
+      color: var(--accent);
+    }
+
+    .format-badge.v1, .format-badge.flat {
+      color: var(--warning);
+    }
+
+    .upgrade-btn {
+      padding: 8px 12px;
+      background: transparent;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      color: var(--text-secondary);
+      font-size: 12px;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+
+    .upgrade-btn:hover {
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+
+    /* Parsed Config */
+    .parsed-config {
+      background: var(--bg-elevated);
+      border-radius: 10px;
+      padding: 16px;
+    }
+
+    .parsed-title {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text-secondary);
+      margin-bottom: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .parsed-row {
+      display: flex;
+      padding: 6px 0;
+      font-size: 14px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .parsed-row:last-child {
+      border-bottom: none;
+    }
+
+    .parsed-label {
+      width: 100px;
+      color: var(--text-muted);
+      flex-shrink: 0;
+    }
+
+    .parsed-value {
+      color: var(--text-primary);
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 13px;
+      word-break: break-all;
+    }
+
+    .parsed-value.truncate {
+      max-width: 300px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    /* Errors/Warnings */
+    .issues-section {
+      margin-bottom: 20px;
+    }
+
+    .issue-card {
+      padding: 12px;
+      border-radius: 8px;
+      margin-bottom: 8px;
+      font-size: 13px;
+    }
+
+    .issue-card.error {
+      background: var(--error-dim);
+      border: 1px solid rgba(248, 81, 73, 0.3);
+    }
+
+    .issue-card.warning {
+      background: var(--warning-dim);
+      border: 1px solid rgba(210, 153, 34, 0.3);
+    }
+
+    .issue-field {
+      font-family: 'JetBrains Mono', monospace;
+      font-weight: 500;
+      margin-bottom: 4px;
+    }
+
+    .issue-card.error .issue-field {
+      color: var(--error);
+    }
+
+    .issue-card.warning .issue-field {
+      color: var(--warning);
+    }
+
+    .issue-message {
+      color: var(--text-primary);
+      margin-bottom: 4px;
+    }
+
+    .issue-fix {
+      color: var(--text-secondary);
+      display: flex;
+      align-items: flex-start;
+      gap: 4px;
+    }
+
+    .issue-fix span {
+      color: var(--accent);
+    }
+
+    /* Status Header */
+    .status-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+
+    .status-icon {
+      width: 48px;
+      height: 48px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .status-icon.valid {
+      background: var(--accent-dim);
+      color: var(--accent);
+    }
+
+    .status-icon.invalid {
+      background: var(--error-dim);
+      color: var(--error);
+    }
+
+    .status-text h3 {
+      font-size: 20px;
+      font-weight: 600;
+    }
+
+    .status-text.valid h3 {
+      color: var(--accent);
+    }
+
+    .status-text.invalid h3 {
+      color: var(--error);
+    }
+
+    .status-text p {
+      font-size: 13px;
+      color: var(--text-secondary);
+    }
+
+    /* FAQ */
+    .faq-section {
+      margin-top: 40px;
+    }
+
+    .faq-title {
+      font-size: 18px;
+      font-weight: 600;
+      margin-bottom: 16px;
+      color: var(--text-primary);
+    }
+
+    .faq-item {
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      margin-bottom: 8px;
+      overflow: hidden;
+    }
+
+    .faq-question {
+      padding: 14px 16px;
+      cursor: pointer;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-weight: 500;
+      color: var(--text-primary);
+      background: var(--bg-surface);
+      transition: background 0.15s;
+    }
+
+    .faq-question:hover {
+      background: var(--bg-elevated);
+    }
+
+    .faq-item[open] .faq-question {
+      border-bottom: 1px solid var(--border);
+    }
+
+    .faq-answer {
+      padding: 14px 16px;
+      font-size: 14px;
+      color: var(--text-secondary);
+      background: var(--bg-surface);
+      line-height: 1.7;
+    }
+
+    .faq-answer code {
+      background: var(--bg-deep);
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px;
+      color: var(--accent);
+    }
+
+    .faq-answer a {
+      color: var(--info);
+      text-decoration: none;
+    }
+
+    .faq-answer a:hover {
+      text-decoration: underline;
+    }
+
+    /* Footer */
+    .footer {
+      text-align: center;
+      padding: 32px 0;
+      color: var(--text-muted);
+      font-size: 13px;
+    }
+
+    .footer a {
+      color: var(--info);
+      text-decoration: none;
+    }
+
+    .footer a:hover {
+      text-decoration: underline;
+    }
+
+    /* Raw Response */
+    .raw-toggle {
+      margin-top: 16px;
+    }
+
+    .raw-toggle summary {
+      font-size: 13px;
+      color: var(--text-muted);
+      cursor: pointer;
+      padding: 8px 0;
+    }
+
+    .raw-toggle summary:hover {
+      color: var(--text-secondary);
+    }
+
+    .raw-content {
+      margin-top: 8px;
+      background: var(--bg-deep);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 12px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      color: var(--text-secondary);
+      overflow-x: auto;
+      max-height: 200px;
+      overflow-y: auto;
+      white-space: pre;
+    }
+
+    /* Request info */
+    .request-info {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px;
+      color: var(--text-muted);
+      margin-bottom: 16px;
+      padding: 10px 12px;
+      background: var(--bg-deep);
+      border-radius: 8px;
+    }
+
+    .request-info .method {
+      color: var(--info);
+      font-weight: 600;
+    }
   </style>
 </head>
-<body class="bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 min-h-screen text-white">
-  <div class="max-w-4xl mx-auto px-4 py-12">
+<body>
+  <div class="container">
     <!-- Header -->
-    <div class="text-center mb-10">
-      <h1 class="text-4xl font-bold bg-gradient-to-r from-blue-400 to-emerald-400 bg-clip-text text-transparent mb-3">
-        x402 Config Validator
-      </h1>
-      <p class="text-slate-400 text-lg">Validate your x402 payment configuration in seconds</p>
-    </div>
+    <header class="header">
+      <div class="logo">
+        <span class="logo-icon">
+          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"/></svg>
+        </span>
+        <span class="logo-402">x402</span><span class="logo-check">check</span>
+      </div>
+      <p class="tagline">Validate your x402 payment config in seconds</p>
+    </header>
 
     <!-- Main Card -->
-    <div class="bg-slate-800/50 backdrop-blur-sm rounded-2xl border border-slate-700 shadow-2xl overflow-hidden">
-      <!-- Examples Section -->
-      <details class="border-b border-slate-700">
-        <summary class="px-6 py-4 cursor-pointer flex justify-between items-center hover:bg-slate-700/30 transition-colors">
-          <span class="font-medium text-slate-300">x402 Format Examples</span>
-          <svg class="w-5 h-5 text-slate-400 transition-transform details-open:rotate-90" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
-          </svg>
+    <div class="card">
+      <!-- Examples -->
+      <details class="examples-section">
+        <summary class="examples-header">
+          <span>See Example Configs</span>
+          <span class="arrow">▶</span>
         </summary>
-        <div class="px-6 py-4 bg-slate-800/50">
-          <!-- Tabs -->
-          <div class="flex gap-2 mb-4">
-            <button class="example-tab px-4 py-2 rounded-lg text-sm font-medium transition-all bg-blue-600 text-white" data-version="1">
-              v1 (payments)
-            </button>
-            <button class="example-tab px-4 py-2 rounded-lg text-sm font-medium transition-all bg-slate-700 text-slate-300 hover:bg-slate-600" data-version="2">
-              v2 (accepts)
-            </button>
+        <div class="examples-content">
+          <div class="tabs">
+            <button class="tab active" data-tab="flat">Flat (Simple)</button>
+            <button class="tab" data-tab="v1">accepts (v1)</button>
+            <button class="tab" data-tab="v2">payments (v2)</button>
+            <button class="tab" data-tab="marketplace">+ Marketplace</button>
           </div>
 
-          <!-- Code examples -->
-          <div id="example-v1" class="example-code bg-slate-900 rounded-lg p-4 font-mono text-sm overflow-x-auto whitespace-pre mb-4">{
+          <div id="example-flat" class="example-panel">
+            <div class="code-block">{
+  <span class="key">"amount"</span>: <span class="number">0.025</span>,
+  <span class="key">"currency"</span>: <span class="string">"USDC"</span>,
+  <span class="key">"network"</span>: <span class="string">"solana"</span>,
+  <span class="key">"payTo"</span>: <span class="string">"5F5Yy9qJov8xK67vEWRoZHppWHEmH3WuG7mSfvLuqUTz"</span>
+}</div>
+            <div class="example-helper">Minimal format. Works but consider upgrading to v2 for multi-chain support.</div>
+          </div>
+
+          <div id="example-v1" class="example-panel" style="display: none;">
+            <div class="code-block">{
+  <span class="key">"accepts"</span>: [{
+    <span class="key">"network"</span>: <span class="string">"solana"</span>,
+    <span class="key">"payTo"</span>: <span class="string">"5F5Yy9qJov8xK67vEWRoZHppWHEmH3WuG7mSfvLuqUTz"</span>,
+    <span class="key">"maxAmountRequired"</span>: <span class="string">"25000"</span>,
+    <span class="key">"asset"</span>: <span class="string">"EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v"</span>
+  }]
+}</div>
+            <div class="example-helper">v1 format used by x402-jobs. Amount in micro-units (25000 = 0.025 USDC).</div>
+          </div>
+
+          <div id="example-v2" class="example-panel" style="display: none;">
+            <div class="code-block">{
   <span class="key">"x402Version"</span>: <span class="number">1</span>,
   <span class="key">"payments"</span>: [{
     <span class="key">"chain"</span>: <span class="string">"solana"</span>,
@@ -64,89 +754,160 @@
     <span class="key">"minAmount"</span>: <span class="string">"0.025"</span>
   }]
 }</div>
-
-          <div id="example-v2" class="example-code bg-slate-900 rounded-lg p-4 font-mono text-sm overflow-x-auto whitespace-pre mb-4 hidden">{
-  <span class="key">"x402Version"</span>: <span class="number">2</span>,
-  <span class="key">"accepts"</span>: [{
-    <span class="key">"chain"</span>: <span class="string">"solana"</span>,
-    <span class="key">"payTo"</span>: <span class="string">"5F5Yy9qJov8xK67vEWRoZHppWHEmH3WuG7mSfvLuqUTz"</span>,
-    <span class="key">"asset"</span>: <span class="string">"USDC"</span>,
-    <span class="key">"price"</span>: <span class="string">"0.025"</span>
-  }]
-}</div>
-
-          <!-- Info box -->
-          <div class="bg-blue-500/10 border border-blue-500/30 rounded-lg p-4 text-sm">
-            <p class="font-semibold text-blue-400 mb-2">Your endpoint should:</p>
-            <ol class="text-slate-300 space-y-1 list-decimal list-inside">
-              <li>Return HTTP status <span class="text-blue-400 font-medium">402 Payment Required</span></li>
-              <li>Include config in <span class="text-blue-400 font-medium">PAYMENT-REQUIRED</span> header (base64) or response body</li>
-              <li>Supported chains: <span class="text-emerald-400 font-mono text-xs">base</span>, <span class="text-emerald-400 font-mono text-xs">base-sepolia</span>, <span class="text-emerald-400 font-mono text-xs">solana</span>, <span class="text-emerald-400 font-mono text-xs">solana-devnet</span></li>
-            </ol>
+            <div class="example-helper">Canonical v2 format. Recommended for new endpoints.</div>
           </div>
 
-          <button id="load-example-btn" class="mt-4 px-4 py-2 bg-slate-700 hover:bg-slate-600 rounded-lg text-sm font-medium transition-colors">
-            Load example into validator
-          </button>
+          <div id="example-marketplace" class="example-panel" style="display: none;">
+            <div class="code-block">{
+  <span class="key">"x402Version"</span>: <span class="number">1</span>,
+  <span class="key">"payments"</span>: [{
+    <span class="key">"chain"</span>: <span class="string">"base"</span>,
+    <span class="key">"address"</span>: <span class="string">"0x1234567890abcdef1234567890abcdef12345678"</span>,
+    <span class="key">"asset"</span>: <span class="string">"USDC"</span>,
+    <span class="key">"minAmount"</span>: <span class="string">"0.01"</span>
+  }],
+  <span class="key">"outputSchema"</span>: {
+    <span class="key">"type"</span>: <span class="string">"object"</span>,
+    <span class="key">"properties"</span>: { <span class="key">"result"</span>: { <span class="key">"type"</span>: <span class="string">"string"</span> } }
+  },
+  <span class="key">"metadata"</span>: {
+    <span class="key">"name"</span>: <span class="string">"My API"</span>,
+    <span class="key">"description"</span>: <span class="string">"Does something useful"</span>,
+    <span class="key">"category"</span>: <span class="string">"ai"</span>
+  }
+}</div>
+            <div class="example-helper">v2 + marketplace metadata. Required for x402jobs listing.</div>
+          </div>
+
+          <button class="load-btn" id="load-example">Load into validator</button>
         </div>
       </details>
 
-      <!-- Input Section -->
-      <div class="p-6">
-        <textarea
-          id="config-input"
-          class="w-full h-64 bg-slate-900 border border-slate-600 rounded-xl p-4 font-mono text-sm text-slate-100 placeholder-slate-500 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 focus:outline-none resize-y transition-all"
-          placeholder="Paste a URL or x402 JSON config..."></textarea>
+      <!-- Input -->
+      <div class="input-section">
+        <div class="input-wrapper">
+          <textarea id="input" placeholder="Paste a URL or JSON config..."></textarea>
+        </div>
 
-        <!-- Controls -->
-        <div class="flex items-center gap-4 mt-4">
-          <div class="flex items-center gap-2">
-            <label class="text-sm text-slate-400">Method:</label>
-            <select id="method-select" class="bg-slate-700 border border-slate-600 rounded-lg px-3 py-2 text-sm font-mono focus:border-blue-500 focus:outline-none">
+        <div class="controls">
+          <div class="method-group">
+            <span class="method-label">Method:</span>
+            <select id="method">
               <option value="GET">GET</option>
               <option value="POST">POST</option>
               <option value="PUT">PUT</option>
               <option value="DELETE">DELETE</option>
-              <option value="PATCH">PATCH</option>
             </select>
           </div>
-          <button
-            id="validate-btn"
-            class="flex-1 sm:flex-none px-8 py-3 bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-500 hover:to-blue-400 rounded-xl font-semibold transition-all shadow-lg shadow-blue-500/25 disabled:opacity-50 disabled:cursor-not-allowed">
+          <button class="validate-btn" id="validate">
+            <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
             Validate
           </button>
         </div>
       </div>
 
-      <!-- Results Section -->
-      <div id="results" class="hidden"></div>
+      <!-- Results -->
+      <div class="results hidden" id="results"></div>
+    </div>
+
+    <!-- FAQ -->
+    <div class="faq-section">
+      <h2 class="faq-title">FAQ</h2>
+
+      <details class="faq-item">
+        <summary class="faq-question">
+          <span>What is x402?</span>
+          <span class="arrow">▶</span>
+        </summary>
+        <div class="faq-answer">
+          x402 is a protocol for machine-to-machine payments over HTTP. When an endpoint requires payment, it returns HTTP status <code>402 Payment Required</code> with a config describing how to pay. Agents read this config, send payment, then retry with proof.
+        </div>
+      </details>
+
+      <details class="faq-item">
+        <summary class="faq-question">
+          <span>What should my endpoint return?</span>
+          <span class="arrow">▶</span>
+        </summary>
+        <div class="faq-answer">
+          For unpaid requests: HTTP status <code>402</code> with config in response body (JSON) or <code>PAYMENT-REQUIRED</code> header (base64). After payment verification: return <code>200</code> with your actual response.
+        </div>
+      </details>
+
+      <details class="faq-item">
+        <summary class="faq-question">
+          <span>Which chains and formats are supported?</span>
+          <span class="arrow">▶</span>
+        </summary>
+        <div class="faq-answer">
+          <strong>Chains:</strong> <code>solana</code>, <code>base</code>, <code>solana-devnet</code>, <code>base-sepolia</code><br><br>
+          <strong>Formats:</strong> We accept 3 formats (Flat, v1 accepts, v2 payments). All work, but v2 is recommended for new endpoints.
+        </div>
+      </details>
+
+      <details class="faq-item">
+        <summary class="faq-question">
+          <span>Why is my config failing?</span>
+          <span class="arrow">▶</span>
+        </summary>
+        <div class="faq-answer">
+          Common issues:<br>
+          • Missing address or amount<br>
+          • Wrong chain name (must be lowercase: <code>solana</code> not <code>Solana</code>)<br>
+          • Address format doesn't match chain (base58 for Solana, 0x for Base)<br>
+          • Endpoint not returning 402 status
+        </div>
+      </details>
+
+      <details class="faq-item">
+        <summary class="faq-question">
+          <span>How do I list on x402jobs?</span>
+          <span class="arrow">▶</span>
+        </summary>
+        <div class="faq-answer">
+          Add marketplace metadata (name, description, outputSchema) to your v2 config, then submit at <a href="https://x402jobs.com" target="_blank" rel="noopener">x402jobs.com</a>. Complete listings get better placement.
+        </div>
+      </details>
     </div>
 
     <!-- Footer -->
-    <p class="text-center text-slate-500 text-sm mt-8">
-      Made by <a href="https://x.com/rawgroundbeef" target="_blank" rel="noopener" class="text-blue-400 hover:underline">@rawgroundbeef</a>
-    </p>
+    <footer class="footer">
+      Made by <a href="https://x.com/rawgroundbeef" target="_blank" rel="noopener">@rawgroundbeef</a>
+    </footer>
   </div>
 
-  <!-- CDN Libraries -->
+  <!-- Scripts -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/5.7.2/ethers.umd.min.js" integrity="sha512-QED56W0x3KyGHKqd3XCcXEhk2F8e8s8qYqBa6BoHKWQGe3tuWtE3LXjKaXU0A9TXWz/JmSTdlJlBVPWM8d1aLA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
   <script src="https://cdn.jsdelivr.net/npm/bs58@6.0.0/dist/index.umd.js" integrity="sha512-A78lV0mETbjmjxh/m5Bq/gu9SNRfVzfX/A4b0kSHEozsz4PYLdPxFQKq7M8FdPPMvwq+9aJjx/xOjXABOvZGCQ==" crossorigin="anonymous"></script>
-
-  <!-- App Scripts -->
   <script src="chains.js"></script>
   <script src="validator.js"></script>
   <script src="input.js"></script>
 
-  <!-- UI Logic -->
   <script>
-    const configInput = document.getElementById('config-input');
-    const validateBtn = document.getElementById('validate-btn');
-    const methodSelect = document.getElementById('method-select');
-    const resultsDiv = document.getElementById('results');
+    // Elements
+    const inputEl = document.getElementById('input');
+    const methodEl = document.getElementById('method');
+    const validateBtn = document.getElementById('validate');
+    const resultsEl = document.getElementById('results');
+    const loadExampleBtn = document.getElementById('load-example');
 
     // Example configs
     const examples = {
-      1: `{
+      flat: `{
+  "amount": 0.025,
+  "currency": "USDC",
+  "network": "solana",
+  "payTo": "5F5Yy9qJov8xK67vEWRoZHppWHEmH3WuG7mSfvLuqUTz"
+}`,
+      v1: `{
+  "accepts": [{
+    "network": "solana",
+    "payTo": "5F5Yy9qJov8xK67vEWRoZHppWHEmH3WuG7mSfvLuqUTz",
+    "maxAmountRequired": "25000",
+    "asset": "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v"
+  }]
+}`,
+      v2: `{
   "x402Version": 1,
   "payments": [{
     "chain": "solana",
@@ -155,199 +916,242 @@
     "minAmount": "0.025"
   }]
 }`,
-      2: `{
-  "x402Version": 2,
-  "accepts": [{
-    "chain": "solana",
-    "payTo": "5F5Yy9qJov8xK67vEWRoZHppWHEmH3WuG7mSfvLuqUTz",
+      marketplace: `{
+  "x402Version": 1,
+  "payments": [{
+    "chain": "base",
+    "address": "0x1234567890abcdef1234567890abcdef12345678",
     "asset": "USDC",
-    "price": "0.025"
-  }]
+    "minAmount": "0.01"
+  }],
+  "outputSchema": {
+    "type": "object",
+    "properties": { "result": { "type": "string" } }
+  },
+  "metadata": {
+    "name": "My API",
+    "description": "Does something useful",
+    "category": "ai"
+  }
 }`
     };
 
-    let currentExampleVersion = 1;
+    let currentTab = 'flat';
 
-    // Example tab switching
-    document.querySelectorAll('.example-tab').forEach(tab => {
+    // Tab switching
+    document.querySelectorAll('.tab').forEach(tab => {
       tab.addEventListener('click', () => {
-        const version = parseInt(tab.dataset.version);
-        currentExampleVersion = version;
-
-        // Update active tab styling
-        document.querySelectorAll('.example-tab').forEach(t => {
-          t.classList.remove('bg-blue-600', 'text-white');
-          t.classList.add('bg-slate-700', 'text-slate-300', 'hover:bg-slate-600');
-        });
-        tab.classList.remove('bg-slate-700', 'text-slate-300', 'hover:bg-slate-600');
-        tab.classList.add('bg-blue-600', 'text-white');
-
-        // Show corresponding example
-        document.getElementById('example-v1').classList.toggle('hidden', version !== 1);
-        document.getElementById('example-v2').classList.toggle('hidden', version !== 2);
+        currentTab = tab.dataset.tab;
+        document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+        tab.classList.add('active');
+        document.querySelectorAll('.example-panel').forEach(p => p.style.display = 'none');
+        document.getElementById(`example-${currentTab}`).style.display = 'block';
       });
     });
 
-    // Load example button
-    document.getElementById('load-example-btn').addEventListener('click', () => {
-      configInput.value = examples[currentExampleVersion];
+    // Load example
+    loadExampleBtn.addEventListener('click', () => {
+      inputEl.value = examples[currentTab];
     });
 
-    // Click handler with loading state
+    // Validate
     validateBtn.addEventListener('click', async () => {
-      const inputValue = configInput.value.trim();
-      const method = methodSelect.value;
-
-      if (!inputValue) {
-        displayError('No input provided. Please paste a URL or JSON config.');
+      const value = inputEl.value.trim();
+      if (!value) {
+        displayError('Please enter a URL or JSON config');
         return;
       }
 
-      // Disable button, show loading
       validateBtn.disabled = true;
-      const originalText = validateBtn.textContent;
-      validateBtn.textContent = 'Validating...';
+      validateBtn.innerHTML = '<span>Validating...</span>';
 
       try {
-        await handleValidation(inputValue, method, displayResults, displayError);
-      } catch (error) {
-        displayError(error.message);
+        await handleValidation(value, methodEl.value, displayResults, displayError);
+      } catch (e) {
+        displayError(e.message);
       } finally {
         validateBtn.disabled = false;
-        validateBtn.textContent = originalText;
+        validateBtn.innerHTML = '<svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg> Validate';
       }
     });
 
-    // Display validation results
     function displayResults(result) {
-      let html = '<div class="p-6 border-t border-slate-700">';
+      let html = '';
 
-      // Request info for URL fetches
-      if (result.source && result.source !== 'direct input') {
-        html += `
-          <div class="font-mono text-sm text-slate-400 mb-3">
-            <span class="text-blue-400 font-semibold">${result.method}</span>
-            <span class="text-slate-500">${result.url}</span>
-            <span class="text-slate-600 mx-2">→</span>
-            <span>${result.source}</span>
-          </div>`;
-      }
+      if (result.type === 'url') {
+        // URL test result with checklist
+        html += `<div class="request-info"><span class="method">${result.method}</span> ${result.url}</div>`;
 
-      // Status warning for non-402 responses
-      if (result.warning) {
-        html += `<div class="text-amber-400 text-sm mb-3 flex items-center gap-2">
-          <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/></svg>
-          ${result.warning}
-        </div>`;
-      }
-
-      // Status badge
-      if (result.valid) {
-        html += `
-          <div class="flex items-center gap-3 mb-4">
-            <div class="w-10 h-10 rounded-full bg-emerald-500/20 flex items-center justify-center">
-              <svg class="w-6 h-6 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
-              </svg>
-            </div>
-            <div>
-              <div class="text-xl font-bold text-emerald-400">Valid</div>
-              <div class="text-sm text-slate-400">x402 version ${result.version}${result.warnings.length ? ` • ${result.warnings.length} warning${result.warnings.length > 1 ? 's' : ''}` : ''}</div>
-            </div>
-          </div>`;
-      } else {
-        html += `
-          <div class="flex items-center gap-3 mb-4">
-            <div class="w-10 h-10 rounded-full bg-red-500/20 flex items-center justify-center">
-              <svg class="w-6 h-6 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
-              </svg>
-            </div>
-            <div>
-              <div class="text-xl font-bold text-red-400">Invalid</div>
-              <div class="text-sm text-slate-400">${result.errors.length} error${result.errors.length > 1 ? 's' : ''}${result.warnings.length ? ` • ${result.warnings.length} warning${result.warnings.length > 1 ? 's' : ''}` : ''}</div>
-            </div>
-          </div>`;
-      }
-
-      // Show errors
-      if (result.errors.length > 0) {
-        html += '<div class="space-y-2 mb-4">';
-        result.errors.forEach(error => {
+        // Checklist
+        html += '<div class="checklist">';
+        for (const [key, check] of Object.entries(result.checks)) {
+          const icon = check.pass ? 'pass' : (check.label.includes('optional') || check.label.includes('v2') ? 'warn' : 'fail');
+          const symbol = check.pass ? '✓' : (icon === 'warn' ? '⚠' : '✗');
           html += `
-            <div class="bg-red-500/10 border border-red-500/30 rounded-lg p-3">
-              <div class="font-mono text-sm text-red-400 font-semibold">${error.field}</div>
-              <div class="text-slate-300 text-sm mt-1">${error.message}</div>
-              <div class="text-slate-400 text-sm mt-1 flex items-start gap-1">
-                <span class="text-emerald-400">→</span> ${error.fix}
+            <div class="check-item">
+              <div class="check-icon ${icon}">${symbol}</div>
+              <div>
+                <div class="check-label">${check.label}</div>
+                ${check.detail ? `<div class="check-detail">${check.detail}</div>` : ''}
               </div>
             </div>`;
-        });
-        html += '</div>';
-      }
-
-      // Show warnings
-      if (result.warnings.length > 0) {
-        html += '<div class="space-y-2 mb-4">';
-        result.warnings.forEach(warning => {
-          html += `
-            <div class="bg-amber-500/10 border border-amber-500/30 rounded-lg p-3">
-              <div class="font-mono text-sm text-amber-400 font-semibold">${warning.field}</div>
-              <div class="text-slate-300 text-sm mt-1">${warning.message}</div>
-              <div class="text-slate-400 text-sm mt-1 flex items-start gap-1">
-                <span class="text-emerald-400">→</span> ${warning.fix}
-              </div>
-            </div>`;
-        });
-        html += '</div>';
-      }
-
-      // Raw fetched config
-      if (result.fetchedConfig) {
-        let formattedConfig;
-        try {
-          formattedConfig = JSON.stringify(JSON.parse(result.fetchedConfig), null, 2);
-        } catch (e) {
-          formattedConfig = result.fetchedConfig;
         }
+        html += '</div>';
+
+        if (result.validation) {
+          html += renderValidationResult(result.validation, result.config);
+        }
+      } else {
+        // Direct JSON validation
+        html += renderValidationResult(result.validation, result.config);
+      }
+
+      resultsEl.innerHTML = html;
+      resultsEl.classList.remove('hidden');
+    }
+
+    function renderValidationResult(validation, config) {
+      let html = '';
+
+      // Status header
+      const isValid = validation.valid;
+      html += `
+        <div class="status-header">
+          <div class="status-icon ${isValid ? 'valid' : 'invalid'}">
+            ${isValid
+              ? '<svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>'
+              : '<svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>'
+            }
+          </div>
+          <div class="status-text ${isValid ? 'valid' : 'invalid'}">
+            <h3>${isValid ? 'Valid' : 'Invalid'}</h3>
+            <p>${validation.errors.length} error${validation.errors.length !== 1 ? 's' : ''}, ${validation.warnings.length} warning${validation.warnings.length !== 1 ? 's' : ''}</p>
+          </div>
+        </div>`;
+
+      // Format badge
+      const formatLabels = {
+        'flat': 'Flat (Simple)',
+        'v1': 'accepts (v1)',
+        'v2': 'payments (v2)',
+        'v2-marketplace': 'v2 + Marketplace'
+      };
+      const formatClass = validation.detectedFormat.startsWith('v2') ? 'v2' : validation.detectedFormat;
+      html += `
+        <div class="format-badge-section">
+          <div class="format-row">
+            <div>
+              <span style="color: var(--text-secondary); font-size: 12px;">Detected Format</span><br>
+              <span class="format-badge ${formatClass}">${formatLabels[validation.detectedFormat] || validation.detectedFormat}</span>
+            </div>
+            ${!validation.detectedFormat.startsWith('v2') ? '<button class="upgrade-btn" onclick="showV2Equivalent()">Show v2 equivalent →</button>' : ''}
+          </div>
+        </div>`;
+
+      // Errors
+      if (validation.errors.length > 0) {
+        html += '<div class="issues-section">';
+        validation.errors.forEach(err => {
+          html += `
+            <div class="issue-card error">
+              <div class="issue-field">${err.field}</div>
+              <div class="issue-message">${err.message}</div>
+              <div class="issue-fix"><span>→</span> ${err.fix}</div>
+            </div>`;
+        });
+        html += '</div>';
+      }
+
+      // Warnings
+      if (validation.warnings.length > 0) {
+        html += '<div class="issues-section">';
+        validation.warnings.forEach(warn => {
+          html += `
+            <div class="issue-card warning">
+              <div class="issue-field">${warn.field}</div>
+              <div class="issue-message">${warn.message}</div>
+              <div class="issue-fix"><span>→</span> ${warn.fix}</div>
+            </div>`;
+        });
+        html += '</div>';
+      }
+
+      // Parsed config summary
+      if (validation.normalized && validation.normalized.payments && validation.normalized.payments.length > 0) {
+        const p = validation.normalized.payments[0];
+        const amount = p._normalizedAmount || normalizeAmount(p.minAmount);
         html += `
-          <details class="mt-4">
-            <summary class="text-sm text-slate-400 cursor-pointer hover:text-slate-300 transition-colors">
-              View fetched response
-            </summary>
-            <pre class="mt-2 bg-slate-900 rounded-lg p-4 font-mono text-xs text-slate-300 overflow-x-auto max-h-64 overflow-y-auto">${escapeHtml(formattedConfig)}</pre>
+          <div class="parsed-config">
+            <div class="parsed-title">Parsed Config</div>
+            <div class="parsed-row">
+              <span class="parsed-label">Chain</span>
+              <span class="parsed-value">${p.chain || '—'}</span>
+            </div>
+            <div class="parsed-row">
+              <span class="parsed-label">Address</span>
+              <span class="parsed-value truncate">${p.address || '—'}</span>
+            </div>
+            <div class="parsed-row">
+              <span class="parsed-label">Amount</span>
+              <span class="parsed-value">${amount.normalized || '—'} ${p.asset || ''} ${amount.isMicroUnits ? `(${amount.original} micro)` : ''}</span>
+            </div>
+            <div class="parsed-row">
+              <span class="parsed-label">Asset</span>
+              <span class="parsed-value">${p.asset || '—'}</span>
+            </div>
+            <div class="parsed-row">
+              <span class="parsed-label">Marketplace</span>
+              <span class="parsed-value">${validation.normalized.metadata ? '✓ Ready' : '✗ No metadata'}</span>
+            </div>
+          </div>`;
+      }
+
+      // Raw config
+      if (config) {
+        html += `
+          <details class="raw-toggle">
+            <summary>View raw config</summary>
+            <div class="raw-content">${escapeHtml(JSON.stringify(config, null, 2))}</div>
           </details>`;
       }
 
-      html += '</div>';
-      resultsDiv.innerHTML = html;
-      resultsDiv.classList.remove('hidden');
+      return html;
     }
 
-    // Escape HTML to prevent XSS
+    function displayError(message) {
+      resultsEl.innerHTML = `
+        <div class="status-header">
+          <div class="status-icon invalid">
+            <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+            </svg>
+          </div>
+          <div class="status-text invalid">
+            <h3>Error</h3>
+            <p>${message}</p>
+          </div>
+        </div>
+        <div class="example-helper" style="margin-top: 16px;">
+          Not sure what's wrong? <a href="#" onclick="document.querySelector('.examples-section').open = true; return false;" style="color: var(--info);">View example configs →</a>
+        </div>`;
+      resultsEl.classList.remove('hidden');
+    }
+
     function escapeHtml(text) {
       const div = document.createElement('div');
       div.textContent = text;
       return div.innerHTML;
     }
 
-    // Display error message
-    function displayError(message) {
-      resultsDiv.innerHTML = `
-        <div class="p-6 border-t border-slate-700">
-          <div class="flex items-center gap-3">
-            <div class="w-10 h-10 rounded-full bg-red-500/20 flex items-center justify-center">
-              <svg class="w-6 h-6 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
-              </svg>
-            </div>
-            <div>
-              <div class="text-lg font-bold text-red-400">Error</div>
-              <div class="text-sm text-slate-400">${message}</div>
-            </div>
-          </div>
-        </div>`;
-      resultsDiv.classList.remove('hidden');
+    function showV2Equivalent() {
+      try {
+        const config = JSON.parse(inputEl.value);
+        const v2 = generateV2Equivalent(config);
+        inputEl.value = v2;
+        validateBtn.click();
+      } catch (e) {
+        // ignore
+      }
     }
   </script>
 </body>

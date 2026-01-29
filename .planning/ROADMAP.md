@@ -93,12 +93,12 @@ Plans:
   3. `validate(configWithSimpleChainName)` returns a warning with fix suggestion like `"Use 'eip155:8453' instead of 'base'"`
   4. `validate(config, { strict: true })` promotes all warnings to errors, making a config with only warnings return `valid: false`
   5. The test suite passes 100+ test cases covering every validation rule, every error code, format detection, normalization round-trips, address validation, and real-world config fixtures
-**Plans**: TBD
+**Plans:** 3 plans
 
 Plans:
-- [ ] 08-01: Validation rule modules (structure, fields, network, amount, legacy)
-- [ ] 08-02: Orchestrator pipeline and public validate() API
-- [ ] 08-03: Integration tests and JSON fixture suite
+- [ ] 08-01-PLAN.md -- Validation rule modules (structure, version, fields, network, amount, legacy)
+- [ ] 08-02-PLAN.md -- Orchestrator pipeline and public validate() API
+- [ ] 08-03-PLAN.md -- Integration tests and JSON fixture suite
 
 ### Phase 9: Build Pipeline and Package Publishing
 **Goal**: The SDK produces correct ESM, CJS, and browser IIFE bundles with working type declarations, and the package is ready for package publishing
@@ -145,4 +145,4 @@ Phases execute in numeric order: 5 -> 6 -> 7 -> 8 -> 9 -> 10
 
 ---
 *Roadmap created: 2026-01-29*
-*Last updated: 2026-01-29 -- Phase 7 complete*
+*Last updated: 2026-01-29 -- Phase 8 planned*

@@ -27,6 +27,8 @@ export const ErrorCode = {
   MISSING_ASSET: 'MISSING_ASSET',
   MISSING_PAY_TO: 'MISSING_PAY_TO',
   MISSING_RESOURCE: 'MISSING_RESOURCE',
+  INVALID_URL: 'INVALID_URL',
+  INVALID_TIMEOUT: 'INVALID_TIMEOUT',
 
   // Address errors (codes only, validation is Phase 7)
   INVALID_EVM_ADDRESS: 'INVALID_EVM_ADDRESS',
@@ -72,6 +74,8 @@ export const ErrorMessages = {
   MISSING_ASSET: 'Missing required field: asset',
   MISSING_PAY_TO: 'Missing required field: payTo',
   MISSING_RESOURCE: 'Missing required field: resource',
+  INVALID_URL: 'resource.url is not a valid URL format',
+  INVALID_TIMEOUT: 'maxTimeoutSeconds must be a positive integer',
 
   // Address errors
   INVALID_EVM_ADDRESS: 'Invalid EVM address format',

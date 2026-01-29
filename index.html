@@ -518,25 +518,50 @@
       color: var(--accent);
     }
 
-    .raw-response {
+    .response-body-section {
       margin-bottom: 20px;
     }
 
-    .raw-response summary {
-      cursor: pointer;
-      font-size: 13px;
-      color: var(--text-secondary);
-      padding: 10px 0;
-      transition: color 0.15s;
+    .response-body-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
     }
 
-    .raw-response summary:hover {
+    .response-body-label {
+      font-size: 12px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: var(--text-secondary);
+    }
+
+    .copy-btn {
+      padding: 4px 12px;
+      background: var(--bg-elevated);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      color: var(--text-secondary);
+      font-size: 12px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+
+    .copy-btn:hover {
+      background: var(--border);
       color: var(--text-primary);
     }
 
-    .raw-response .code-block {
-      margin-top: 8px;
-      max-height: 300px;
+    .copy-btn.copied {
+      background: var(--accent-dim);
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+
+    .response-body-section .code-block {
+      max-height: 400px;
       overflow-y: auto;
       white-space: pre-wrap;
       word-break: break-word;
@@ -1044,15 +1069,18 @@
         }
         html += '</div>';
 
-        // Raw response
+        // Response body (shown immediately)
         if (result.rawBody) {
           let formattedBody = result.rawBody;
           try { formattedBody = JSON.stringify(JSON.parse(result.rawBody), null, 2); } catch(e) {}
           html += `
-            <details class="raw-response">
-              <summary>View raw response</summary>
-              <div class="code-block">${escapeHtml(formattedBody)}</div>
-            </details>`;
+            <div class="response-body-section">
+              <div class="response-body-header">
+                <span class="response-body-label">Response Body</span>
+                <button class="copy-btn" onclick="copyResponseBody(this)">Copy</button>
+              </div>
+              <div class="code-block" id="response-body-content">${escapeHtml(formattedBody)}</div>
+            </div>`;
         }
 
         if (result.validation) {
@@ -1201,6 +1229,20 @@
           Not sure what's wrong? <a href="#" onclick="document.querySelector('.examples-section').open = true; return false;" style="color: var(--info);">View example configs →</a>
         </div>`;
       resultsEl.classList.remove('hidden');
+    }
+
+    function copyResponseBody(btn) {
+      const content = document.getElementById('response-body-content');
+      if (content) {
+        navigator.clipboard.writeText(content.textContent).then(() => {
+          btn.textContent = 'Copied!';
+          btn.classList.add('copied');
+          setTimeout(() => {
+            btn.textContent = 'Copy';
+            btn.classList.remove('copied');
+          }, 2000);
+        });
+      }
     }
 
     function escapeHtml(text) {

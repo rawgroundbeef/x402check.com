@@ -10,18 +10,18 @@ See: .planning/PROJECT.md (updated 2026-01-29)
 ## Current Position
 
 Phase: 7 of 10 (Crypto Vendoring and Address Validation)
-Plan: 0 of 2 in current phase
-Status: Ready to plan
-Last activity: 2026-01-29 — Phase 6 verified and complete
+Plan: 1 of 2 in current phase
+Status: In progress
+Last activity: 2026-01-29 — Completed 07-01-PLAN.md
 
-Progress: [████░░░░░░] 33% (4/12 plans across 6 phases)
+Progress: [█████░░░░░] 42% (5/12 plans across 6 phases)
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 7 (3 v1.0 + 4 v2.0)
-- Average duration: 2.7 min
-- Total execution time: 0.31 hours
+- Total plans completed: 8 (3 v1.0 + 5 v2.0)
+- Average duration: 2.8 min
+- Total execution time: 0.36 hours
 
 **By Phase:**
 
@@ -31,6 +31,7 @@ Progress: [████░░░░░░] 33% (4/12 plans across 6 phases)
 | 2 - Input & Proxy | 1/2 | 4.0 min | 4.0 min |
 | 5 - Repository Restructuring | 1/1 | 3.0 min | 3.0 min |
 | 6 - Types, Detection, Normalization | 3/3 | 8.8 min | 2.9 min |
+| 7 - Crypto Vendoring | 1/2 | 4.4 min | 4.4 min |
 
 *Updated after each plan completion*
 
@@ -57,6 +58,10 @@ Recent decisions affecting current work:
 | Detection uses x402Version value, not resource presence | 06-02 | v2 without resource detects as v2, fails validation later |
 | Payments array alone identifies flat-legacy format | 06-02 | Handles nested network/chain in payments entries |
 | Preserve unrecognized networks through normalization | 06-02 | Validation catches unknown networks with actionable errors |
+| Use @noble/hashes and @scure/base as devDependencies | 07-01 | Tree-shakeable crypto, zero runtime deps |
+| Import @noble/hashes subpaths with .js extension | 07-01 | Package exports field requires explicit .js |
+| Add DOM lib to package tsconfig for TextEncoder | 07-01 | ES2022 alone doesn't provide TextEncoder in all contexts |
+| NO_EVM_CHECKSUM separate from BAD_EVM_CHECKSUM | 07-01 | Distinguish no-checksum from wrong-checksum guidance |
 
 ### Pending Todos
 
@@ -65,11 +70,10 @@ None.
 ### Blockers/Concerns
 
 - tsdown UMD config specifics need verification during Phase 9
-- Keccak-256 vendoring strategy (vendor vs devDep+tree-shake) to decide in Phase 7
 
 ## Session Continuity
 
-Last session: 2026-01-29
-Stopped at: Phase 6 complete, verified, roadmap updated
+Last session: 2026-01-29 21:50 UTC
+Stopped at: Completed 07-01-PLAN.md (Crypto primitives)
 Resume file: None
-Next: Plan Phase 7 (Crypto Vendoring and Address Validation)
+Next: Execute 07-02 (Address validation using crypto primitives)

@@ -34,8 +34,11 @@ export function validateEvmAddress(
     ]
   }
 
+  const hexPart = address.slice(2)
+
   // Check if all-lowercase (no checksum)
-  if (address === address.toLowerCase()) {
+  // Only warn if there are actual letters (a-f) - all-digits addresses are fine
+  if (address === address.toLowerCase() && /[a-f]/.test(hexPart)) {
     return [
       {
         code: ErrorCode.NO_EVM_CHECKSUM,
@@ -48,9 +51,14 @@ export function validateEvmAddress(
   }
 
   // Check if all-uppercase (valid, no checksum info)
-  const hexPart = address.slice(2)
-  if (/^[0-9A-F]{40}$/.test(hexPart)) {
+  // Only skip checksum verification if there are actual letters (A-F) - all-digits go through
+  if (/^[0-9A-F]{40}$/.test(hexPart) && /[A-F]/.test(hexPart)) {
     // All-uppercase is valid and common, no warning needed
+    return []
+  }
+
+  // If all digits (0-9 only), treat as valid - no checksum verification needed
+  if (/^[0-9]{40}$/.test(hexPart)) {
     return []
   }
 

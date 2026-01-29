@@ -29,7 +29,7 @@ v2.0 extracts the validation logic from the plain HTML/JS website into a standal
 ## v2.0 Spec-Compliant SDK
 
 - [x] **Phase 5: Repository Restructuring** - Monorepo scaffold with SDK package skeleton
-- [ ] **Phase 6: Types, Detection, and Normalization** - Type system, error codes, format detection, normalization, and registries
+- [x] **Phase 6: Types, Detection, and Normalization** - Type system, error codes, format detection, normalization, and registries
 - [ ] **Phase 7: Crypto Vendoring and Address Validation** - Vendored keccak256 + Base58, EVM and Solana address validation
 - [ ] **Phase 8: Validation Rules and Orchestrator** - All validation rules, orchestrator pipeline, public validate() API
 - [ ] **Phase 9: Build Pipeline and Package Publishing** - ESM + CJS + UMD builds, type declarations, package.json exports
@@ -63,9 +63,9 @@ Plans:
 **Plans:** 3 plans
 
 Plans:
-- [ ] 06-01-PLAN.md -- Type system, error codes, and public API signatures
-- [ ] 06-02-PLAN.md -- Format detection and normalization
-- [ ] 06-03-PLAN.md -- Network and asset registries
+- [x] 06-01-PLAN.md -- Type system, error codes, and public API signatures
+- [x] 06-02-PLAN.md -- Format detection and normalization
+- [x] 06-03-PLAN.md -- Network and asset registries
 
 ### Phase 7: Crypto Vendoring and Address Validation
 **Goal**: Vendored crypto primitives are proven correct against reference test vectors, and address validation dispatches by chain type with checksum verification for EVM and byte-length validation for Solana
@@ -137,7 +137,7 @@ Phases execute in numeric order: 5 -> 6 -> 7 -> 8 -> 9 -> 10
 | Phase | Milestone | Plans Complete | Status | Completed |
 |-------|-----------|----------------|--------|-----------|
 | 5. Repository Restructuring | v2.0 | 1/1 | Complete | 2026-01-29 |
-| 6. Types, Detection, Normalization | v2.0 | 0/3 | Planned | - |
+| 6. Types, Detection, Normalization | v2.0 | 3/3 | Complete | 2026-01-29 |
 | 7. Crypto & Address Validation | v2.0 | 0/2 | Not started | - |
 | 8. Validation Rules & Orchestrator | v2.0 | 0/3 | Not started | - |
 | 9. Build Pipeline | v2.0 | 0/1 | Not started | - |
@@ -145,4 +145,4 @@ Phases execute in numeric order: 5 -> 6 -> 7 -> 8 -> 9 -> 10
 
 ---
 *Roadmap created: 2026-01-29*
-*Last updated: 2026-01-29 -- Phase 6 planned*
+*Last updated: 2026-01-29 -- Phase 6 complete*

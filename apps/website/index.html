@@ -520,25 +520,6 @@
       color: var(--accent);
     }
 
-    .response-body-section {
-      margin-bottom: 20px;
-    }
-
-    .response-body-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 8px;
-    }
-
-    .response-body-label {
-      font-size: 12px;
-      font-weight: 600;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-      color: var(--text-secondary);
-    }
-
     .copy-btn {
       padding: 4px 12px;
       background: var(--bg-elevated);
@@ -560,12 +541,6 @@
       background: var(--accent-dim);
       border-color: var(--accent);
       color: var(--accent);
-    }
-
-    .response-body-section .code-block {
-      white-space: pre-wrap;
-      word-break: break-word;
-      margin-bottom: 0;
     }
 
     .error-card {
@@ -717,22 +692,6 @@
       text-decoration: underline;
     }
 
-    /* Raw Response */
-    .raw-toggle {
-      margin-top: 16px;
-    }
-
-    .raw-toggle summary {
-      font-size: 13px;
-      color: var(--text-muted);
-      cursor: pointer;
-      padding: 8px 0;
-    }
-
-    .raw-toggle summary:hover {
-      color: var(--text-secondary);
-    }
-
     .raw-content {
       margin-top: 8px;
       background: var(--bg-deep);
@@ -748,201 +707,147 @@
       white-space: pre;
     }
 
-    /* Request info */
-    .request-info {
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 12px;
-      color: var(--text-muted);
-      margin-bottom: 16px;
-      padding: 10px 12px;
-      background: var(--bg-deep);
-      border-radius: 8px;
+    /* Result Card */
+    .result-card {
+      padding: 24px 20px;
     }
 
-    .request-info .method {
-      color: var(--info);
-      font-weight: 600;
-    }
-
-    /* Verdict Section */
-    .verdict-section {
-      text-align: center;
-      padding: 28px 20px;
-      margin-bottom: 20px;
-    }
-
-    .verdict-icon {
-      width: 56px;
-      height: 56px;
-      border-radius: 14px;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      margin-bottom: 12px;
-    }
-
-    .verdict-icon.valid {
-      background: var(--accent-dim);
-      color: var(--accent);
-    }
-
-    .verdict-icon.invalid {
-      background: var(--error-dim);
-      color: var(--error);
-    }
-
-    .verdict-label {
-      font-size: 24px;
-      font-weight: 600;
-    }
-
-    .verdict-label.valid {
-      color: var(--accent);
-    }
-
-    .verdict-label.invalid {
-      color: var(--error);
-    }
-
-    .verdict-counts {
-      font-size: 13px;
-      color: var(--text-secondary);
-      margin-top: 4px;
-    }
-
-    .verdict-format {
-      margin-top: 16px;
+    /* Verdict Line */
+    .verdict-line {
       display: flex;
       align-items: center;
-      justify-content: center;
-      gap: 12px;
-    }
-
-    /* Status Badges */
-    .status-badges {
-      display: flex;
-      justify-content: center;
       gap: 8px;
-      margin-top: 16px;
-      flex-wrap: wrap;
     }
 
-    .badge {
+    .verdict-icon-inline {
       display: inline-flex;
       align-items: center;
-      gap: 4px;
-      padding: 4px 8px;
-      border-radius: 4px;
-      font-size: 11px;
-      font-weight: 600;
-      text-transform: uppercase;
-    }
-
-    .badge-pass {
-      background: var(--accent-dim);
-      color: var(--accent);
-    }
-
-    .badge-fail {
-      background: var(--error-dim);
-      color: var(--error);
-    }
-
-    /* Collapsible Response Body */
-    .response-body-wrapper {
-      position: relative;
-      overflow: hidden;
-    }
-
-    .response-body-wrapper.response-body-collapsed {
-      max-height: 100px;
-    }
-
-    .response-body-wrapper.response-body-collapsed::after {
-      content: '';
-      position: absolute;
-      bottom: 0;
-      left: 0;
-      right: 0;
-      height: 40px;
-      background: linear-gradient(transparent, var(--bg-deep));
-      pointer-events: none;
-    }
-
-    .response-body-wrapper.response-body-expanded .code-block {
-      max-height: 400px;
-      overflow-y: auto;
-    }
-
-    .response-body-toggle {
-      padding: 8px 0;
-      font-size: 13px;
-      color: var(--text-muted);
-      cursor: pointer;
-      background: none;
-      border: none;
-      font-family: 'Outfit', sans-serif;
-      display: flex;
-      align-items: center;
-      gap: 6px;
-    }
-
-    .response-body-toggle:hover {
-      color: var(--text-secondary);
-    }
-
-    /* Compact Issues List */
-    .issues-list {
-      background: var(--bg-elevated);
-      border-radius: 10px;
-      padding: 16px;
-      margin-bottom: 16px;
-    }
-
-    .issues-list-header {
-      font-size: 12px;
-      font-weight: 600;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-      margin-bottom: 10px;
-      padding-bottom: 10px;
-      border-bottom: 1px solid var(--border);
-    }
-
-    .issues-list-header.errors {
-      color: var(--error);
-    }
-
-    .issues-list-header.warnings {
-      color: var(--warning);
-    }
-
-    .issue-row {
-      display: flex;
-      align-items: baseline;
-      gap: 12px;
-      padding: 5px 0;
-      font-size: 13px;
-    }
-
-    .issue-row + .issue-row {
-      border-top: 1px solid var(--border);
-    }
-
-    .issue-row-label {
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 12px;
-      font-weight: 500;
-      min-width: 72px;
+      justify-content: center;
       flex-shrink: 0;
     }
 
-    .issue-row.error .issue-row-label {
-      color: var(--error);
+    .verdict-icon-inline.valid { color: var(--accent); }
+    .verdict-icon-inline.invalid { color: var(--error); }
+
+    .verdict-text {
+      font-family: 'Outfit', sans-serif;
+      font-weight: 600;
+      font-size: 18px;
     }
 
-    .issue-row.warning .issue-row-label {
+    .verdict-text.valid { color: var(--accent); }
+    .verdict-text.invalid { color: var(--error); }
+
+    .verdict-count {
+      font-family: 'Outfit', sans-serif;
+      font-size: 18px;
+      font-weight: 400;
+      color: var(--text-muted);
+    }
+
+    /* Error Messages (shown directly, not expandable) */
+    .error-messages {
+      margin-top: 16px;
+    }
+
+    .error-message {
+      font-family: 'Outfit', sans-serif;
+      font-size: 14px;
+      color: var(--text-primary);
+      padding: 8px 0;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .error-message:last-child {
+      border-bottom: none;
+    }
+
+    .error-message .issue-row-fix {
+      color: var(--text-muted);
+      font-size: 12px;
+    }
+
+    /* Expandable Sections */
+    .expand-links {
+      margin-top: 16px;
+    }
+
+    .expand-section {
+      margin-bottom: 2px;
+    }
+
+    .expand-link {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-family: 'Outfit', sans-serif;
+      font-size: 13px;
+      color: var(--text-secondary);
+      cursor: pointer;
+      padding: 6px 0;
+      text-decoration: none;
+      list-style: none;
+    }
+
+    .expand-link:hover {
+      color: var(--text-primary);
+    }
+
+    .expand-link::-webkit-details-marker {
+      display: none;
+    }
+
+    .expand-link .chevron {
+      font-size: 10px;
+      transition: transform 0.15s;
+    }
+
+    .expand-section[open] > .expand-link .chevron {
+      transform: rotate(90deg);
+    }
+
+    .expand-content {
+      padding: 8px 0 8px 18px;
+    }
+
+    /* Warning rows inside expandable */
+    .warning-row {
+      display: flex;
+      align-items: baseline;
+      gap: 10px;
+      padding: 4px 0;
+      font-size: 13px;
+      color: var(--text-primary);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .warning-row:last-child {
+      border-bottom: none;
+    }
+
+    .warning-field {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px;
+      font-weight: 500;
       color: var(--warning);
+      min-width: 64px;
+      flex-shrink: 0;
+    }
+
+    /* Check rows inside expandable endpoint checks */
+    .check-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 4px 0;
+      font-size: 13px;
+    }
+
+    .check-row.pass { color: var(--accent); }
+    .check-row.fail { color: var(--error); }
+
+    .expand-content .copy-btn {
+      margin-left: auto;
     }
 
     .issue-row-message {
@@ -980,7 +885,6 @@
           <div class="tabs">
             <button class="tab active" data-tab="v2">v2 (Recommended)</button>
             <button class="tab" data-tab="v1">v1</button>
-            <button class="tab" data-tab="flat">Flat (Legacy)</button>
             <button class="tab" data-tab="marketplace">+ Marketplace</button>
           </div>
 
@@ -1014,16 +918,6 @@
   }]
 }</div>
             <div class="example-helper">v1 format. Uses maxAmountRequired instead of amount. Consider upgrading to v2.</div>
-          </div>
-
-          <div id="example-flat" class="example-panel" style="display: none;">
-            <div class="code-block">{
-  <span class="key">"amount"</span>: <span class="string">"25000"</span>,
-  <span class="key">"currency"</span>: <span class="string">"USDC"</span>,
-  <span class="key">"network"</span>: <span class="string">"solana"</span>,
-  <span class="key">"payTo"</span>: <span class="string">"5F5Yy9qJov8xK67vEWRoZHppWHEmH3WuG7mSfvLuqUTz"</span>
-}</div>
-            <div class="example-helper">Legacy flat format. Works but deprecated. Click 'Show v2 equivalent' to upgrade.</div>
           </div>
 
           <div id="example-marketplace" class="example-panel" style="display: none;">
@@ -1270,35 +1164,11 @@
       const config = result.config;
       const checks = result.type === 'url' ? result.checks : null;
 
-      if (result.type === 'url') {
-        html += `<div class="request-info"><span class="method">${result.method}</span> ${result.url}</div>`;
-      }
-
       if (validation && typeof validation.valid !== 'undefined') {
-        // 1. Verdict (always first)
-        html += renderVerdict(validation, checks);
-
-        // 2. Errors, warnings, parsed config, raw config
-        html += renderDetails(validation, config);
-
-        // 3. Response body (collapsed, URL only)
-        if (result.type === 'url' && result.rawBody) {
-          let formattedBody = result.rawBody;
-          try { formattedBody = JSON.stringify(JSON.parse(result.rawBody), null, 2); } catch(e) {}
-          html += `
-            <div class="response-body-section">
-              <div class="response-body-header">
-                <span class="response-body-label">Response Body</span>
-                <button class="copy-btn" onclick="copyResponseBody(this)">Copy</button>
-              </div>
-              <div class="response-body-wrapper response-body-collapsed" id="response-body-wrapper">
-                <div class="code-block" id="response-body-content">${escapeHtml(formattedBody)}</div>
-              </div>
-              <button class="response-body-toggle" onclick="toggleResponseBody()">
-                <span id="rb-toggle-icon">▼</span> Show full response
-              </button>
-            </div>`;
-        }
+        html += '<div class="result-card">';
+        html += renderVerdict(validation);
+        html += renderDetails(validation, config, result, checks);
+        html += '</div>';
       } else if (result.type === 'url') {
         if (result.config) {
           html += '<div class="error-card"><strong>Config found but validation failed</strong><br>Raw config: <pre>' + escapeHtml(JSON.stringify(result.config, null, 2)) + '</pre></div>';
@@ -1311,147 +1181,150 @@
       resultsEl.classList.remove('hidden');
     }
 
-    function renderVerdict(validation, checks) {
+    function renderVerdict(validation) {
       if (!validation || typeof validation.valid === 'undefined') {
         return '<div class="error-card"><strong>Validation error</strong><br>Could not validate the config.</div>';
       }
 
       const isValid = validation.valid;
-      let html = '<div class="verdict-section">';
+      const checkSvg = '<svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>';
+      const xSvg = '<svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"/></svg>';
 
-      // Icon
-      html += `<div class="verdict-icon ${isValid ? 'valid' : 'invalid'}">
-        ${isValid
-          ? '<svg width="28" height="28" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>'
-          : '<svg width="28" height="28" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"/></svg>'
-        }
+      let countText = '';
+      if (!isValid && validation.errors.length > 0) {
+        countText = `${validation.errors.length} error${validation.errors.length !== 1 ? 's' : ''}`;
+      } else if (isValid && validation.warnings.length > 0) {
+        countText = `${validation.warnings.length} warning${validation.warnings.length !== 1 ? 's' : ''}`;
+      }
+
+      return `<div class="verdict-line">
+        <span class="verdict-icon-inline ${isValid ? 'valid' : 'invalid'}">${isValid ? checkSvg : xSvg}</span>
+        <span class="verdict-text ${isValid ? 'valid' : 'invalid'}">${isValid ? 'Valid' : 'Invalid'}</span>
+        ${countText ? `<span class="verdict-count">&middot; ${countText}</span>` : ''}
       </div>`;
+    }
 
-      // Label + counts
-      html += `<div class="verdict-label ${isValid ? 'valid' : 'invalid'}">${isValid ? 'Valid' : 'Invalid'}</div>`;
-      html += `<div class="verdict-counts">${validation.errors.length} error${validation.errors.length !== 1 ? 's' : ''} · ${validation.warnings.length} warning${validation.warnings.length !== 1 ? 's' : ''}</div>`;
+    function renderDetails(validation, config, result, checks) {
+      if (!validation || typeof validation.valid === 'undefined') return '';
 
-      // Inline status badges (URL checks only)
-      if (checks) {
-        const badgeOrder = ['returns402', 'hasCors', 'hasConfig', 'hasHeader'];
-        const badgeLabels = { returns402: '402', hasCors: 'CORS', hasConfig: 'Body', hasHeader: 'Header' };
-        html += '<div class="status-badges">';
-        badgeOrder.forEach(key => {
-          if (checks[key]) {
-            const pass = checks[key].pass;
-            html += `<span class="badge ${pass ? 'badge-pass' : 'badge-fail'}">${badgeLabels[key]} ${pass ? '✓' : '✗'}</span>`;
-          }
+      let html = '';
+
+      // Errors shown directly (not expandable)
+      if (validation.errors.length > 0) {
+        html += '<div class="error-messages">';
+        validation.errors.forEach(err => {
+          html += `<div class="error-message">${err.message}${err.fix ? ' <span class="issue-row-fix">\u2192 ' + err.fix + '</span>' : ''}</div>`;
         });
         html += '</div>';
       }
 
-      // Format detection
-      const formatLabels = {
-        'v1': 'v1 (accepts)',
-        'v2': 'v2 (Canonical)',
-        'v2-marketplace': 'v2 + Marketplace',
-        'unknown': 'Unknown'
-      };
-      const formatClass = validation.detectedFormat.startsWith('v2') ? 'v2' : validation.detectedFormat;
-      html += `<div class="verdict-format">
-        <span class="format-badge ${formatClass}">${formatLabels[validation.detectedFormat] || validation.detectedFormat}</span>
-        ${!validation.detectedFormat.startsWith('v2') ? '<button class="upgrade-btn" onclick="showV2Equivalent()">Show v2 equivalent →</button>' : ''}
-      </div>`;
+      // Expandable sections
+      html += '<div class="expand-links">';
 
-      // Help link on invalid
-      if (!isValid) {
-        html += `<div style="margin-top: 12px;"><a href="#" onclick="document.querySelector('.examples-section').open = true; return false;" style="color: var(--info); font-size: 13px; text-decoration: none;">View example configs →</a></div>`;
+      // Warnings (expandable, only if present)
+      if (validation.warnings.length > 0) {
+        html += `<details class="expand-section">
+          <summary class="expand-link"><span class="chevron">\u25B8</span> View warnings</summary>
+          <div class="expand-content">`;
+        validation.warnings.forEach(warn => {
+          html += `<div class="warning-row">
+            ${warn.field && warn.field !== '$' ? `<span class="warning-field">${warn.field}</span>` : ''}
+            <span>${warn.message}${warn.fix ? ' <span class="issue-row-fix">\u2192 ' + warn.fix + '</span>' : ''}</span>
+          </div>`;
+        });
+        html += '</div></details>';
+      }
+
+      // Parsed config (expandable)
+      if (validation.normalized && validation.normalized.payments && validation.normalized.payments.length > 0) {
+        const p = validation.normalized.payments[0];
+        const amount = p._normalizedAmount || normalizeAmount(p.minAmount);
+        const formatLabels = { 'v1': 'v1', 'v2': 'v2 (Canonical)', 'v2-marketplace': 'v2 + Marketplace', 'unknown': 'Unknown' };
+        html += `<details class="expand-section">
+          <summary class="expand-link"><span class="chevron">\u25B8</span> View parsed config</summary>
+          <div class="expand-content">
+            <div class="parsed-config">
+              <div class="parsed-row"><span class="parsed-label">Chain</span><span class="parsed-value">${p.chain || '\u2014'}</span></div>
+              <div class="parsed-row"><span class="parsed-label">Address</span><span class="parsed-value truncate">${p.address || '\u2014'}</span></div>
+              <div class="parsed-row"><span class="parsed-label">Amount</span><span class="parsed-value">${amount.normalized || '\u2014'} ${p.asset || ''} ${amount.isMicroUnits ? '(' + amount.original + ' micro)' : ''}</span></div>
+              <div class="parsed-row"><span class="parsed-label">Asset</span><span class="parsed-value">${p.asset || '\u2014'}</span></div>
+              <div class="parsed-row"><span class="parsed-label">Format</span><span class="parsed-value">${formatLabels[validation.detectedFormat] || validation.detectedFormat}</span></div>
+              <div class="parsed-row"><span class="parsed-label">Marketplace</span><span class="parsed-value">${validation.normalized.metadata ? '\u2713 Ready' : '\u2717 No metadata'}</span></div>
+            </div>
+            ${!validation.detectedFormat.startsWith('v2') ? '<button class="upgrade-btn" onclick="showV2Equivalent()" style="margin-top: 8px;">Show v2 equivalent \u2192</button>' : ''}
+          </div>
+        </details>`;
+      }
+
+      // Endpoint checks (expandable, URL only)
+      if (checks) {
+        const checkOrder = ['returns402', 'hasCors', 'hasConfig', 'hasHeader'];
+        const checkLabels = { returns402: 'Returns 402', hasCors: 'CORS accessible', hasConfig: 'Config in body', hasHeader: 'PAYMENT-REQUIRED header' };
+        html += `<details class="expand-section">
+          <summary class="expand-link"><span class="chevron">\u25B8</span> View endpoint checks</summary>
+          <div class="expand-content">`;
+        checkOrder.forEach(key => {
+          if (checks[key]) {
+            const pass = checks[key].pass;
+            html += `<div class="check-row ${pass ? 'pass' : 'fail'}">
+              <span>${pass ? '\u2713' : '\u2717'}</span>
+              <span>${checkLabels[key]}${checks[key].detail ? ' (' + checks[key].detail + ')' : ''}</span>
+            </div>`;
+          }
+        });
+        html += '</div></details>';
+      }
+
+      // Response body (expandable, URL only)
+      if (result && result.type === 'url' && result.rawBody) {
+        let formattedBody = result.rawBody;
+        try { formattedBody = JSON.stringify(JSON.parse(result.rawBody), null, 2); } catch(e) {}
+        html += `<details class="expand-section">
+          <summary class="expand-link"><span class="chevron">\u25B8</span> View response body</summary>
+          <div class="expand-content">
+            <div style="position: relative;">
+              <button class="copy-btn" onclick="copyResponseBody(this)" style="position: absolute; top: 8px; right: 8px; z-index: 1;">Copy</button>
+              <div class="raw-content" id="response-body-content">${escapeHtml(formattedBody)}</div>
+            </div>
+          </div>
+        </details>`;
+      }
+
+      // Raw config (expandable, JSON input only)
+      if (config && (!result || result.type !== 'url')) {
+        html += `<details class="expand-section">
+          <summary class="expand-link"><span class="chevron">\u25B8</span> View raw config</summary>
+          <div class="expand-content">
+            <div class="raw-content">${escapeHtml(JSON.stringify(config, null, 2))}</div>
+          </div>
+        </details>`;
+      }
+
+      // Example configs link (on invalid)
+      if (!validation.valid) {
+        html += `<a href="#" class="expand-link" onclick="document.querySelector('.examples-section').open = true; return false;"><span class="chevron">\u25B8</span> View example configs</a>`;
       }
 
       html += '</div>';
       return html;
     }
 
-    function renderDetails(validation, config) {
-      if (!validation || typeof validation.valid === 'undefined') return '';
-
-      let html = '';
-
-      // Errors (compact list)
-      if (validation.errors.length > 0) {
-        html += `<div class="issues-list">
-          <div class="issues-list-header errors">Errors (${validation.errors.length})</div>`;
-        validation.errors.forEach(err => {
-          html += `<div class="issue-row error">
-            <span class="issue-row-label">${err.field}</span>
-            <span class="issue-row-message">${err.message}${err.fix ? ' <span class="issue-row-fix">→ ' + err.fix + '</span>' : ''}</span>
-          </div>`;
-        });
-        html += '</div>';
-      }
-
-      // Warnings (compact list)
-      if (validation.warnings.length > 0) {
-        html += `<div class="issues-list">
-          <div class="issues-list-header warnings">Warnings (${validation.warnings.length})</div>`;
-        validation.warnings.forEach(warn => {
-          html += `<div class="issue-row warning">
-            <span class="issue-row-label">${warn.field}</span>
-            <span class="issue-row-message">${warn.message}${warn.fix ? ' <span class="issue-row-fix">→ ' + warn.fix + '</span>' : ''}</span>
-          </div>`;
-        });
-        html += '</div>';
-      }
-
-      // Parsed config summary
-      if (validation.normalized && validation.normalized.payments && validation.normalized.payments.length > 0) {
-        const p = validation.normalized.payments[0];
-        const amount = p._normalizedAmount || normalizeAmount(p.minAmount);
-        html += `
-          <div class="parsed-config">
-            <div class="parsed-title">Parsed Config</div>
-            <div class="parsed-row">
-              <span class="parsed-label">Chain</span>
-              <span class="parsed-value">${p.chain || '—'}</span>
-            </div>
-            <div class="parsed-row">
-              <span class="parsed-label">Address</span>
-              <span class="parsed-value truncate">${p.address || '—'}</span>
-            </div>
-            <div class="parsed-row">
-              <span class="parsed-label">Amount</span>
-              <span class="parsed-value">${amount.normalized || '—'} ${p.asset || ''} ${amount.isMicroUnits ? `(${amount.original} micro)` : ''}</span>
-            </div>
-            <div class="parsed-row">
-              <span class="parsed-label">Asset</span>
-              <span class="parsed-value">${p.asset || '—'}</span>
-            </div>
-            <div class="parsed-row">
-              <span class="parsed-label">Marketplace</span>
-              <span class="parsed-value">${validation.normalized.metadata ? '✓ Ready' : '✗ No metadata'}</span>
-            </div>
-          </div>`;
-      }
-
-      // Raw config
-      if (config) {
-        html += `
-          <details class="raw-toggle">
-            <summary>View raw config</summary>
-            <div class="raw-content">${escapeHtml(JSON.stringify(config, null, 2))}</div>
-          </details>`;
-      }
-
-      return html;
-    }
-
     function displayError(message) {
       resultsEl.innerHTML = `
-        <div class="verdict-section">
-          <div class="verdict-icon invalid">
-            <svg width="28" height="28" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
-            </svg>
+        <div class="result-card">
+          <div class="verdict-line">
+            <span class="verdict-icon-inline invalid">
+              <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"/>
+              </svg>
+            </span>
+            <span class="verdict-text invalid">Error</span>
           </div>
-          <div class="verdict-label invalid">Error</div>
-          <div class="verdict-counts">${message}</div>
-          <div style="margin-top: 12px;">
-            <a href="#" onclick="document.querySelector('.examples-section').open = true; return false;" style="color: var(--info); font-size: 13px; text-decoration: none;">View example configs →</a>
+          <div class="error-messages">
+            <div class="error-message">${message}</div>
+          </div>
+          <div class="expand-links">
+            <a href="#" class="expand-link" onclick="document.querySelector('.examples-section').open = true; return false;"><span class="chevron">\u25B8</span> View example configs</a>
           </div>
         </div>`;
       resultsEl.classList.remove('hidden');
@@ -1468,20 +1341,6 @@
             btn.classList.remove('copied');
           }, 2000);
         });
-      }
-    }
-
-    function toggleResponseBody() {
-      const wrapper = document.getElementById('response-body-wrapper');
-      const toggle = wrapper.closest('.response-body-section').querySelector('.response-body-toggle');
-      if (wrapper.classList.contains('response-body-collapsed')) {
-        wrapper.classList.remove('response-body-collapsed');
-        wrapper.classList.add('response-body-expanded');
-        toggle.innerHTML = '<span>▲</span> Hide full response';
-      } else {
-        wrapper.classList.remove('response-body-expanded');
-        wrapper.classList.add('response-body-collapsed');
-        toggle.innerHTML = '<span>▼</span> Show full response';
       }
     }
 

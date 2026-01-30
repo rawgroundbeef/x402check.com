@@ -38,11 +38,11 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/anthropics/x402check.git"
+    "url": "git+https://github.com/rawgroundbeef/x402check.com.git"
   },
-  "homepage": "https://github.com/anthropics/x402check#readme",
+  "homepage": "https://www.x402check.com",
   "bugs": {
-    "url": "https://github.com/anthropics/x402check/issues"
+    "url": "https://github.com/rawgroundbeef/x402check.com/issues"
   },
   "devDependencies": {
     "@noble/hashes": "^2.0.1",

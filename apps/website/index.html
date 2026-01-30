@@ -858,6 +858,123 @@
     .issue-row-fix {
       color: var(--text-secondary);
     }
+
+    /* Integration Cards */
+    .integrations-section {
+      margin: 48px 0;
+    }
+
+    .integrations-header {
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin-bottom: 20px;
+    }
+
+    .integrations-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+    }
+
+    @media (max-width: 600px) {
+      .integrations-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .integration-card {
+      background: var(--bg-surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 24px;
+      text-align: center;
+      transition: border-color 0.2s, opacity 0.2s;
+    }
+
+    .integration-icon {
+      font-size: 28px;
+      margin-bottom: 16px;
+      opacity: 0.9;
+    }
+
+    .integration-title {
+      font-family: 'Outfit', sans-serif;
+      font-weight: 600;
+      font-size: 16px;
+      color: var(--text-primary);
+      margin-bottom: 4px;
+    }
+
+    .integration-subtitle {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 13px;
+      color: var(--text-secondary);
+      margin-bottom: 16px;
+    }
+
+    .integration-cta {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .integration-card.available {
+      cursor: pointer;
+      border-color: var(--border);
+    }
+
+    .integration-card.available:hover {
+      border-color: var(--accent);
+    }
+
+    .integration-card.available .integration-cta {
+      color: var(--accent);
+    }
+
+    .integration-card.available .integration-icon {
+      opacity: 1;
+    }
+
+    .integration-card.coming-soon {
+      opacity: 0.5;
+      cursor: default;
+    }
+
+    .integration-card.coming-soon .integration-cta {
+      color: var(--text-muted);
+    }
+
+    .copy-toast {
+      position: fixed;
+      bottom: 24px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: var(--bg-elevated);
+      border: 1px solid var(--border);
+      padding: 12px 20px;
+      border-radius: 8px;
+      font-size: 13px;
+      color: var(--text-primary);
+      animation: fadeInUp 0.2s ease;
+      z-index: 100;
+      pointer-events: none;
+    }
+
+    @keyframes fadeInUp {
+      from {
+        opacity: 0;
+        transform: translateX(-50%) translateY(10px);
+      }
+      to {
+        opacity: 1;
+        transform: translateX(-50%) translateY(0);
+      }
+    }
   </style>
 </head>
 <body>
@@ -980,6 +1097,31 @@
       <div class="results hidden" id="results"></div>
     </div>
 
+    <!-- Integration Cards -->
+    <div class="integrations-section">
+      <div class="integrations-header">Integrate</div>
+      <div class="integrations-grid">
+        <div class="integration-card available" id="npm-card">
+          <div class="integration-icon">📦</div>
+          <div class="integration-title">npm</div>
+          <div class="integration-subtitle">x402check</div>
+          <div class="integration-cta">npm i x402check <span>⧉</span></div>
+        </div>
+        <div class="integration-card coming-soon">
+          <div class="integration-icon">&gt;_</div>
+          <div class="integration-title">CLI</div>
+          <div class="integration-subtitle">&nbsp;</div>
+          <div class="integration-cta">Coming soon</div>
+        </div>
+        <div class="integration-card coming-soon">
+          <div class="integration-icon">🤖</div>
+          <div class="integration-title">Claude Skill</div>
+          <div class="integration-subtitle">&nbsp;</div>
+          <div class="integration-cta">Coming soon</div>
+        </div>
+      </div>
+    </div>
+
     <!-- FAQ -->
     <div class="faq-section">
       <h2 class="faq-title">FAQ</h2>
@@ -1012,7 +1154,7 @@
         <div class="faq-answer">
           <strong>Chains:</strong> <code>base</code> (eip155:8453), <code>solana</code> (solana:5eykt...), <code>base-sepolia</code>, <code>solana-devnet</code>, <code>avalanche</code>, and more. Networks use <a href="https://github.com/ChainAgnostic/CAIPs/blob/main/CAIPs/caip-2.md" target="_blank" rel="noopener">CAIP-2</a> identifiers internally.<br><br>
           <strong>Formats:</strong> Three formats are supported: Flat (legacy), v1 (accepts), and v2 (canonical). All work, but v2 is recommended for new endpoints.<br><br>
-          Powered by the <a href="https://github.com/rawgroundbeef/x402check" target="_blank" rel="noopener">x402check SDK</a>.
+          Powered by the <a href="https://github.com/rawgroundbeef/x402check.com" target="_blank" rel="noopener">x402check SDK</a>.
         </div>
       </details>
 
@@ -1043,13 +1185,14 @@
 
     <!-- Footer -->
     <footer class="footer">
-      Made by <a href="https://x.com/rawgroundbeef" target="_blank" rel="noopener">@rawgroundbeef</a> &nbsp;&middot;&nbsp; <a href="https://github.com/rawgroundbeef/x402check" target="_blank" rel="noopener">GitHub</a> &nbsp;&middot;&nbsp; Powered by <a href="https://openfacilitator.io" target="_blank" rel="noopener">OpenFacilitator</a>
+      Made by <a href="https://x.com/rawgroundbeef" target="_blank" rel="noopener">@rawgroundbeef</a> &nbsp;&middot;&nbsp; <a href="https://github.com/rawgroundbeef/x402check.com" target="_blank" rel="noopener">GitHub</a> &nbsp;&middot;&nbsp; Powered by <a href="https://openfacilitator.io" target="_blank" rel="noopener">OpenFacilitator</a>
     </footer>
   </div>
 
+  <div class="copy-toast" id="copy-toast" style="display:none;">Copied npm i x402check</div>
+
   <!-- Scripts: SDK IIFE bundle + input handler with adapter -->
-  <!-- TODO: Switch to CDN after npm publish: https://cdn.jsdelivr.net/npm/x402check@0.0.1/dist/index.iife.js -->
-  <script src="x402check.iife.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/x402check@0.0.1/dist/index.iife.js"></script>
   <script src="input.js"></script>
 
   <script>
@@ -1362,6 +1505,18 @@
         // ignore
       }
     }
+
+    // npm card: copy to clipboard + open npm page
+    const copyToast = document.getElementById('copy-toast');
+    let toastTimer;
+    document.getElementById('npm-card').addEventListener('click', () => {
+      navigator.clipboard.writeText('npm i x402check').then(() => {
+        clearTimeout(toastTimer);
+        copyToast.style.display = 'block';
+        toastTimer = setTimeout(() => { copyToast.style.display = 'none'; }, 1500);
+      });
+      window.open('https://www.npmjs.com/package/x402check', '_blank', 'noopener');
+    });
   </script>
 </body>
 </html>

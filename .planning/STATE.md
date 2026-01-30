@@ -10,18 +10,18 @@ See: .planning/PROJECT.md (updated 2026-01-29)
 ## Current Position
 
 Phase: 10 of 10 (Website Integration)
-Plan: 0 of 2 in current phase
-Status: Ready to plan
-Last activity: 2026-01-29 — Phase 9 verified and complete
+Plan: 1 of 2 in current phase
+Status: In progress
+Last activity: 2026-01-29 — Completed 10-01-PLAN.md
 
-Progress: [██████████░] 83% (10/12 plans across 8 phases)
+Progress: [███████████░] 92% (11/12 plans across 9 phases)
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 13 (3 v1.0 + 10 v2.0)
+- Total plans completed: 14 (3 v1.0 + 11 v2.0)
 - Average duration: 2.9 min
-- Total execution time: 0.62 hours
+- Total execution time: 0.67 hours
 
 **By Phase:**
 
@@ -34,6 +34,7 @@ Progress: [██████████░] 83% (10/12 plans across 8 phases)
 | 7 - Crypto Vendoring & Address Validation | 2/2 | 7.3 min | 3.7 min |
 | 8 - Validation Rules & Orchestrator | 3/3 | 9.3 min | 3.1 min |
 | 9 - Build Pipeline & Package Publishing | 1/1 | 3.0 min | 3.0 min |
+| 10 - Website Integration | 1/2 | 3.0 min | 3.0 min |
 
 *Updated after each plan completion*
 
@@ -77,6 +78,10 @@ Recent decisions affecting current work:
 | Split types conditions in exports for ESM/CJS | 09-01 | publint best practice for correct TypeScript resolution |
 | IIFE bundle 27KB raw / 9KB gzip acceptable | 09-01 | Crypto vendoring tradeoff for zero runtime deps |
 | Revised BUILD-04 from 15KB to 30KB target | 09-verify | Pre-crypto-vendoring estimate was unrealistic |
+| Omit SRI integrity hash until package published to npm | 10-01 | Fake hash would break loading; add during publish workflow |
+| Map flat-legacy to flat in adapter for backward compat | 10-01 | Old display code expects 'flat' not 'flat-legacy' |
+| Detect v2-marketplace via normalized.extensions | 10-01 | SDK returns 'v2' for all v2; adapter checks extensions |
+| Extended CAIP-2 reverse lookup beyond original 4 chains | 10-01 | Forward compat for avalanche, stellar, aptos |
 
 ### Pending Todos
 
@@ -89,6 +94,6 @@ None.
 ## Session Continuity
 
 Last session: 2026-01-29
-Stopped at: Phase 9 complete, verified, roadmap updated
+Stopped at: Completed 10-01-PLAN.md
 Resume file: None
-Next: Plan Phase 10 (Website Integration)
+Next: Plan 10-02 (Website cleanup and example config updates)

@@ -123,11 +123,11 @@ Plans:
   2. Pasting a valid v2 config into the website shows a green "Valid" result with the same detail level as v1.0
   3. Pasting a legacy flat config into the website shows warnings about deprecated format with fix suggestions
   4. Example configs in the dropdown use canonical v2 format and load/validate correctly
-**Plans**: TBD
+**Plans:** 2 plans
 
 Plans:
-- [ ] 10-01: SDK bundle integration and adapter layer
-- [ ] 10-02: Example config updates and CDN cleanup
+- [ ] 10-01-PLAN.md -- SDK bundle integration and adapter layer
+- [ ] 10-02-PLAN.md -- Example config updates and CDN cleanup
 
 ## Progress
 
@@ -145,4 +145,4 @@ Phases execute in numeric order: 5 -> 6 -> 7 -> 8 -> 9 -> 10
 
 ---
 *Roadmap created: 2026-01-29*
-*Last updated: 2026-01-29 -- Phase 9 complete*
+*Last updated: 2026-01-29 -- Phase 10 planned*

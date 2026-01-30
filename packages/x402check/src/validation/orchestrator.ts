@@ -154,8 +154,14 @@ function runPipeline(
       // Amount (errors)
       errors.push(...validateAmount(entry, fieldPath))
 
-      // Timeout (warnings)
-      warnings.push(...validateTimeout(entry, fieldPath, format))
+      // Timeout (mixed: errors and warnings by severity)
+      for (const issue of validateTimeout(entry, fieldPath, format)) {
+        if (issue.severity === 'error') {
+          errors.push(issue)
+        } else {
+          warnings.push(issue)
+        }
+      }
 
       // Address validation (dispatch by severity)
       if (entry.payTo && entry.network) {

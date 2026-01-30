@@ -31,7 +31,7 @@ v2.0 extracts the validation logic from the plain HTML/JS website into a standal
 - [x] **Phase 5: Repository Restructuring** - Monorepo scaffold with SDK package skeleton
 - [x] **Phase 6: Types, Detection, and Normalization** - Type system, error codes, format detection, normalization, and registries
 - [x] **Phase 7: Crypto Vendoring and Address Validation** - Vendored keccak256 + Base58, EVM and Solana address validation
-- [ ] **Phase 8: Validation Rules and Orchestrator** - All validation rules, orchestrator pipeline, public validate() API
+- [x] **Phase 8: Validation Rules and Orchestrator** - All validation rules, orchestrator pipeline, public validate() API
 - [ ] **Phase 9: Build Pipeline and Package Publishing** - ESM + CJS + UMD builds, type declarations, package.json exports
 - [ ] **Phase 10: Website Integration** - Replace website validator with SDK browser bundle
 
@@ -96,9 +96,9 @@ Plans:
 **Plans:** 3 plans
 
 Plans:
-- [ ] 08-01-PLAN.md -- Validation rule modules (structure, version, fields, network, amount, legacy)
-- [ ] 08-02-PLAN.md -- Orchestrator pipeline and public validate() API
-- [ ] 08-03-PLAN.md -- Integration tests and JSON fixture suite
+- [x] 08-01-PLAN.md -- Validation rule modules (structure, version, fields, network, amount, legacy)
+- [x] 08-02-PLAN.md -- Orchestrator pipeline and public validate() API
+- [x] 08-03-PLAN.md -- Integration tests and JSON fixture suite
 
 ### Phase 9: Build Pipeline and Package Publishing
 **Goal**: The SDK produces correct ESM, CJS, and browser IIFE bundles with working type declarations, and the package is ready for package publishing
@@ -139,10 +139,10 @@ Phases execute in numeric order: 5 -> 6 -> 7 -> 8 -> 9 -> 10
 | 5. Repository Restructuring | v2.0 | 1/1 | Complete | 2026-01-29 |
 | 6. Types, Detection, Normalization | v2.0 | 3/3 | Complete | 2026-01-29 |
 | 7. Crypto & Address Validation | v2.0 | 2/2 | Complete | 2026-01-29 |
-| 8. Validation Rules & Orchestrator | v2.0 | 0/3 | Not started | - |
+| 8. Validation Rules & Orchestrator | v2.0 | 3/3 | Complete | 2026-01-29 |
 | 9. Build Pipeline | v2.0 | 0/1 | Not started | - |
 | 10. Website Integration | v2.0 | 0/2 | Not started | - |
 
 ---
 *Roadmap created: 2026-01-29*
-*Last updated: 2026-01-29 -- Phase 8 planned*
+*Last updated: 2026-01-29 -- Phase 8 complete*

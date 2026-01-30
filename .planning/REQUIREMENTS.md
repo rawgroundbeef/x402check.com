@@ -9,27 +9,27 @@ Requirements for spec-compliant SDK extraction and website rebuild. Each maps to
 
 ### SDK Core API
 
-- [ ] **API-01**: `validate(config)` returns structured `{ valid, errors, warnings, version, normalized }` — never throws on invalid input
+- [x] **API-01**: `validate(config)` returns structured `{ valid, errors, warnings, version, normalized }` — never throws on invalid input
 - [ ] **API-02**: `detect(config)` returns `'v2' | 'v1' | 'flat-legacy' | 'unknown'` based on structural markers
 - [ ] **API-03**: `normalize(config)` converts any recognized format to canonical v2 shape, returns `null` if unparseable
 - [ ] **API-04**: All public APIs accept `string | object` input (JSON string or parsed object)
-- [ ] **API-05**: `validate()` includes `normalized` field in result (null only if completely unparseable)
-- [ ] **API-06**: `validate(config, { strict: true })` promotes all warnings to errors
+- [x] **API-05**: `validate()` includes `normalized` field in result (null only if completely unparseable)
+- [x] **API-06**: `validate(config, { strict: true })` promotes all warnings to errors
 - [ ] **API-07**: Public API exported as named exports only (no default export) — `{ validate, detect, normalize }`
 
 ### Validation Rules
 
-- [ ] **RULE-01**: Level 1 — input must be valid JSON, must be an object, must have recognized format
-- [ ] **RULE-02**: Level 2 — `x402Version` must be present (error for v2, warning for v1/flat), must be 1 or 2
-- [ ] **RULE-03**: Level 2 — `accepts` array must exist and be non-empty
-- [ ] **RULE-04**: Level 2 — `resource` object should exist in v2 (warning), `resource.url` should be valid URL
-- [ ] **RULE-05**: Level 3 — `scheme` must be present (error for v2, warning for v1/flat)
-- [ ] **RULE-06**: Level 3 — `network` must be present and use CAIP-2 format (`namespace:reference`)
-- [ ] **RULE-07**: Level 3 — `amount` (v2) / `maxAmountRequired` (v1) must be present, numeric string, positive
-- [ ] **RULE-08**: Level 3 — `asset` must be present
-- [ ] **RULE-09**: Level 3 — `payTo` must be present
-- [ ] **RULE-10**: Level 3 — `maxTimeoutSeconds` should be present in v2 (warning), must be positive integer if present
-- [ ] **RULE-11**: Level 5 — Legacy format warnings: flat format, v1 field names, simple chain names, alias fields, missing scheme defaults
+- [x] **RULE-01**: Level 1 — input must be valid JSON, must be an object, must have recognized format
+- [x] **RULE-02**: Level 2 — `x402Version` must be present (error for v2, warning for v1/flat), must be 1 or 2
+- [x] **RULE-03**: Level 2 — `accepts` array must exist and be non-empty
+- [x] **RULE-04**: Level 2 — `resource` object should exist in v2 (warning), `resource.url` should be valid URL
+- [x] **RULE-05**: Level 3 — `scheme` must be present (error for v2, warning for v1/flat)
+- [x] **RULE-06**: Level 3 — `network` must be present and use CAIP-2 format (`namespace:reference`)
+- [x] **RULE-07**: Level 3 — `amount` (v2) / `maxAmountRequired` (v1) must be present, numeric string, positive
+- [x] **RULE-08**: Level 3 — `asset` must be present
+- [x] **RULE-09**: Level 3 — `payTo` must be present
+- [x] **RULE-10**: Level 3 — `maxTimeoutSeconds` should be present in v2 (warning), must be positive integer if present
+- [x] **RULE-11**: Level 5 — Legacy format warnings: flat format, v1 field names, simple chain names, alias fields, missing scheme defaults
 
 ### Error Reporting
 
@@ -85,14 +85,14 @@ Requirements for spec-compliant SDK extraction and website rebuild. Each maps to
 
 ### Testing
 
-- [ ] **TEST-01**: Unit tests for every validation rule (each error code exercised)
-- [ ] **TEST-02**: Format detection tests (v2, v1, flat-legacy, unknown)
-- [ ] **TEST-03**: Normalization tests (flat → v2, v1 → v2, v2 passthrough, extra/extensions preserved)
+- [x] **TEST-01**: Unit tests for every validation rule (each error code exercised)
+- [x] **TEST-02**: Format detection tests (v2, v1, flat-legacy, unknown)
+- [x] **TEST-03**: Normalization tests (flat → v2, v1 → v2, v2 passthrough, extra/extensions preserved)
 - [x] **TEST-04**: Address validation tests (valid/invalid EVM, valid/invalid Solana, network mismatch)
 - [x] **TEST-05**: Crypto primitive tests (keccak256 canary, Base58 leading zeros, EIP-55 reference vectors)
-- [ ] **TEST-06**: Integration tests (real-world configs, round-trip normalize→validate)
-- [ ] **TEST-07**: JSON fixture files for reproducible testing
-- [ ] **TEST-08**: 100+ test cases total
+- [x] **TEST-06**: Integration tests (real-world configs, round-trip normalize→validate)
+- [x] **TEST-07**: JSON fixture files for reproducible testing
+- [x] **TEST-08**: 100+ test cases total
 
 ### Website Integration
 
@@ -141,24 +141,24 @@ Deferred beyond v2.0.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| API-01 | Phase 8 | Pending |
+| API-01 | Phase 8 | Complete |
 | API-02 | Phase 6 | Complete |
 | API-03 | Phase 6 | Complete |
 | API-04 | Phase 6 | Complete |
-| API-05 | Phase 8 | Pending |
-| API-06 | Phase 8 | Pending |
+| API-05 | Phase 8 | Complete |
+| API-06 | Phase 8 | Complete |
 | API-07 | Phase 6 | Complete |
-| RULE-01 | Phase 8 | Pending |
-| RULE-02 | Phase 8 | Pending |
-| RULE-03 | Phase 8 | Pending |
-| RULE-04 | Phase 8 | Pending |
-| RULE-05 | Phase 8 | Pending |
-| RULE-06 | Phase 8 | Pending |
-| RULE-07 | Phase 8 | Pending |
-| RULE-08 | Phase 8 | Pending |
-| RULE-09 | Phase 8 | Pending |
-| RULE-10 | Phase 8 | Pending |
-| RULE-11 | Phase 8 | Pending |
+| RULE-01 | Phase 8 | Complete |
+| RULE-02 | Phase 8 | Complete |
+| RULE-03 | Phase 8 | Complete |
+| RULE-04 | Phase 8 | Complete |
+| RULE-05 | Phase 8 | Complete |
+| RULE-06 | Phase 8 | Complete |
+| RULE-07 | Phase 8 | Complete |
+| RULE-08 | Phase 8 | Complete |
+| RULE-09 | Phase 8 | Complete |
+| RULE-10 | Phase 8 | Complete |
+| RULE-11 | Phase 8 | Complete |
 | ERR-01 | Phase 6 | Complete |
 | ERR-02 | Phase 6 | Complete |
 | ERR-03 | Phase 6 | Complete |
@@ -193,14 +193,14 @@ Deferred beyond v2.0.
 | BUILD-04 | Phase 9 | Pending |
 | BUILD-05 | Phase 9 | Pending |
 | BUILD-06 | Phase 5 | Complete |
-| TEST-01 | Phase 8 | Pending |
-| TEST-02 | Phase 8 | Pending |
-| TEST-03 | Phase 8 | Pending |
+| TEST-01 | Phase 8 | Complete |
+| TEST-02 | Phase 8 | Complete |
+| TEST-03 | Phase 8 | Complete |
 | TEST-04 | Phase 7 | Complete |
 | TEST-05 | Phase 7 | Complete |
-| TEST-06 | Phase 8 | Pending |
-| TEST-07 | Phase 8 | Pending |
-| TEST-08 | Phase 8 | Pending |
+| TEST-06 | Phase 8 | Complete |
+| TEST-07 | Phase 8 | Complete |
+| TEST-08 | Phase 8 | Complete |
 | WEB-01 | Phase 10 | Pending |
 | WEB-02 | Phase 10 | Pending |
 | WEB-03 | Phase 10 | Pending |
@@ -224,4 +224,4 @@ Deferred beyond v2.0.
 
 ---
 *Requirements defined: 2026-01-29*
-*Last updated: 2026-01-29 -- Phase 7 requirements complete*
+*Last updated: 2026-01-29 -- Phase 8 requirements complete*

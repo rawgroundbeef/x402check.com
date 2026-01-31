@@ -1410,11 +1410,11 @@
           <div class="integration-subtitle">x402check</div>
           <div class="integration-cta">npm i x402check <span>⧉</span></div>
         </div>
-        <div class="integration-card coming-soon">
+        <div class="integration-card available" id="cli-card">
           <div class="integration-icon">&gt;_</div>
           <div class="integration-title">CLI</div>
-          <div class="integration-subtitle">&nbsp;</div>
-          <div class="integration-cta">Coming soon</div>
+          <div class="integration-subtitle">x402check</div>
+          <div class="integration-cta">npx x402check <span>⧉</span></div>
         </div>
         <div class="integration-card coming-soon">
           <div class="integration-icon">🤖</div>
@@ -2016,15 +2016,21 @@
       }
     }
 
-    // npm card: copy to clipboard + open npm page
+    // Integration cards: copy to clipboard + open link
     const copyToast = document.getElementById('copy-toast');
     let toastTimer;
+    function showToast(text) {
+      copyToast.textContent = text;
+      clearTimeout(toastTimer);
+      copyToast.style.display = 'block';
+      toastTimer = setTimeout(() => { copyToast.style.display = 'none'; }, 1500);
+    }
     document.getElementById('npm-card').addEventListener('click', () => {
-      navigator.clipboard.writeText('npm i x402check').then(() => {
-        clearTimeout(toastTimer);
-        copyToast.style.display = 'block';
-        toastTimer = setTimeout(() => { copyToast.style.display = 'none'; }, 1500);
-      });
+      navigator.clipboard.writeText('npm i x402check').then(() => showToast('Copied npm i x402check'));
+      window.open('https://www.npmjs.com/package/x402check', '_blank', 'noopener');
+    });
+    document.getElementById('cli-card').addEventListener('click', () => {
+      navigator.clipboard.writeText('npx x402check').then(() => showToast('Copied npx x402check'));
       window.open('https://www.npmjs.com/package/x402check', '_blank', 'noopener');
     });
   </script>

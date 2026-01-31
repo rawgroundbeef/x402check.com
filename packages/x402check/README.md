@@ -37,6 +37,14 @@ Exit codes: `0` valid, `1` invalid, `2` input error.
 
 Install globally with `npm i -g x402check` to use `x402check` directly.
 
+## Claude Skill
+
+Teach Claude Code to create and validate x402 configs:
+
+```
+npx skills add https://github.com/rawgroundbeef/x402check --skill x402check
+```
+
 ## Quick start
 
 ```js

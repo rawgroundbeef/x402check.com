@@ -18,6 +18,14 @@ Validate [x402](https://www.x402.org/) payment configurations. Checks structure,
 - Normalizes any supported format to canonical v2
 - Returns structured errors and warnings with fix suggestions
 
+## Claude Skill
+
+Teach Claude Code to create and validate x402 configs:
+
+```
+npx skills add https://github.com/rawgroundbeef/x402check --skill x402check
+```
+
 ## Monorepo structure
 
 ```

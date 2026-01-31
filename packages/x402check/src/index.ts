@@ -24,5 +24,8 @@ export type { ValidationOptions } from './validation'
 export { extractConfig } from './extraction'
 export type { ExtractionResult, ExtractionSource, ResponseLike } from './extraction'
 
+// Re-export unified check API
+export { check } from './check'
+
 // Version constant
-export const VERSION = '0.1.0' as const
+export const VERSION = '0.2.0' as const

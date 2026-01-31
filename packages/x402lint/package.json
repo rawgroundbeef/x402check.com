@@ -1,7 +1,7 @@
 {
-  "name": "x402check",
+  "name": "x402lint",
   "version": "0.3.1",
-  "description": "Validate x402 payment configurations",
+  "description": "Validate x402 payment configurations (alias for x402check)",
   "type": "module",
   "main": "./dist/index.cjs",
   "module": "./dist/index.js",
@@ -22,22 +22,20 @@
     "dist/"
   ],
   "bin": {
-    "x402check": "./dist/cli.mjs"
+    "x402lint": "./dist/cli.mjs"
   },
   "sideEffects": false,
   "scripts": {
     "build": "tsdown",
-    "test": "vitest run",
-    "test:watch": "vitest",
+    "test": "echo 'tests run via x402check'",
     "lint": "tsc --noEmit",
-    "typecheck": "tsc --noEmit",
-    "prepublishOnly": "pnpm test && pnpm build && publint",
-    "postpublish": "cd ../x402lint && npm version $npm_package_version --no-git-tag-version && pnpm build && npm publish --access public"
+    "prepublishOnly": "pnpm build && publint"
   },
   "keywords": [
     "x402",
     "payment",
-    "validation"
+    "validation",
+    "lint"
   ],
   "license": "MIT",
   "repository": {
@@ -54,7 +52,6 @@
     "@types/node": "^25.1.0",
     "publint": "^0.3.16",
     "tsdown": "^0.20.1",
-    "typescript": "^5.9.3",
-    "vitest": "^4.0.18"
+    "typescript": "^5.9.3"
   }
 }

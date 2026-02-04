@@ -44,15 +44,15 @@ The SDK correctly implements the canonical x402 v1/v2 specs with CAIP-2 network 
 
 ### Active
 
-- [ ] Manifest schema definition (collection of v2 PaymentRequired entries with service metadata)
-- [ ] Manifest detection & validation (structure, per-endpoint, cross-endpoint checks)
-- [ ] Full bazaar extension validation (shape, JSON Schema, method type discrimination)
-- [ ] Compatibility layer for non-standard wild manifests (normalize biwas-style formats)
-- [ ] Stacks chain address validation (SP/SM addresses, c32check encoding)
-- [ ] CLI (`npx x402check <url-or-file>`) with auto-detection of single config vs manifest
-- [ ] npm publish to registry
-- [ ] Website manifest validation mode (paste JSON/URL, per-endpoint results)
-- [ ] `validateManifest()` SDK export with `ManifestValidationResult`
+- [ ] MAN-01: Manifest schema definition (collection of v2 PaymentRequired entries with service metadata) — Phase 11
+- [ ] MAN-02: Manifest detection & validation (structure, per-endpoint, cross-endpoint checks) — Phase 13
+- [ ] MAN-03: Full bazaar extension validation (shape, JSON Schema, method type discrimination) — Phase 13
+- [ ] MAN-04: Compatibility layer for non-standard wild manifests (normalize biwas-style formats) — Phase 11
+- [ ] MAN-05: Stacks chain address validation (SP/SM addresses, c32check encoding) — Phase 12
+- [ ] MAN-06: CLI (`npx x402check <url-or-file>`) with auto-detection of single config vs manifest — Phase 14
+- [ ] MAN-07: npm publish to registry — Phase 16
+- [ ] MAN-08: Website manifest validation mode (paste JSON/URL, per-endpoint results) — Phase 15
+- [ ] MAN-09: `validateManifest()` SDK export with `ManifestValidationResult` — Phase 13
 
 ### Out of Scope
 
@@ -66,6 +66,7 @@ The SDK correctly implements the canonical x402 v1/v2 specs with CAIP-2 network 
 - DNS TXT record validation — can be added later
 - Bazaar registry integration — Coinbase-hosted, separate concern
 - Manifest publishing/generation tools — future
+- Bazaar deep JSON Schema validation (requires Ajv runtime) — deferred post-v3.0
 
 ## Current Milestone: v3.0 Manifest Validation & CLI
 
@@ -128,4 +129,4 @@ The SDK correctly implements the canonical x402 v1/v2 specs with CAIP-2 network 
 | Local IIFE bundle symlink | Package not yet published to npm | ⚠️ Revisit — publish to npm in v3.0 |
 
 ---
-*Last updated: 2026-02-04 after v3.0 milestone started*
+*Last updated: 2026-02-04 after v3.0 roadmap created*

@@ -20,6 +20,10 @@ export { validateAddress, validateEvmAddress, validateSolanaAddress } from './va
 export { validate } from './validation'
 export type { ValidationOptions } from './validation'
 
+// Re-export manifest validation (Phase 13)
+export { validateManifest } from './validation'
+export type { ManifestValidationResult } from './types'
+
 // Re-export HTTP config extraction
 export { extractConfig } from './extraction'
 export type { ExtractionResult, ExtractionSource, ResponseLike } from './extraction'

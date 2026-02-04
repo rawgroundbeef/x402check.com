@@ -5,16 +5,14 @@
 See: .planning/PROJECT.md (updated 2026-02-04)
 
 **Core value:** Developers can validate their x402 config in under 30 seconds with actionable feedback
-**Current focus:** Planning next milestone
+**Current focus:** Milestone v3.0 — Manifest Validation & CLI
 
 ## Current Position
 
-Phase: 10 of 10 — ALL COMPLETE
-Plan: All plans complete across all milestones
-Status: Ready to plan next milestone
-Last activity: 2026-02-04 — v2.0 milestone archived
-
-Progress: [████████████] 100% (12/12 plans, 6/6 phases in v2.0)
+Phase: Not started (defining requirements)
+Plan: —
+Status: Defining requirements
+Last activity: 2026-02-04 — Milestone v3.0 started
 
 ## Performance Metrics
 
@@ -40,6 +38,6 @@ None.
 ## Session Continuity
 
 Last session: 2026-02-04
-Stopped at: v2.0 milestone archived
+Stopped at: Milestone v3.0 questioning complete
 Resume file: None
-Next: `/gsd:new-milestone` to start next milestone
+Next: Research → Requirements → Roadmap

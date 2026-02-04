@@ -44,17 +44,42 @@ The SDK correctly implements the canonical x402 v1/v2 specs with CAIP-2 network 
 
 ### Active
 
-(None — fresh requirements needed for next milestone)
+- [ ] Manifest schema definition (collection of v2 PaymentRequired entries with service metadata)
+- [ ] Manifest detection & validation (structure, per-endpoint, cross-endpoint checks)
+- [ ] Full bazaar extension validation (shape, JSON Schema, method type discrimination)
+- [ ] Compatibility layer for non-standard wild manifests (normalize biwas-style formats)
+- [ ] Stacks chain address validation (SP/SM addresses, c32check encoding)
+- [ ] CLI (`npx x402check <url-or-file>`) with auto-detection of single config vs manifest
+- [ ] npm publish to registry
+- [ ] Website manifest validation mode (paste JSON/URL, per-endpoint results)
+- [ ] `validateManifest()` SDK export with `ManifestValidationResult`
 
 ### Out of Scope
 
 - Test payments — validation only, no actual transactions
 - Facilitator liveness checks — just validate URL format, don't ping
 - On-chain balance validation — don't check if address has funds
-- Batch validation — one config at a time
+- Batch validation of unrelated configs — manifests are structured collections, not arbitrary batches
 - User accounts — contradicts simplicity
 - Schema library (Zod/Ajv) internally — adds 13-50KB for ~20 rules
 - Async validation — all rules are pure synchronous computation
+- DNS TXT record validation — can be added later
+- Bazaar registry integration — Coinbase-hosted, separate concern
+- Manifest publishing/generation tools — future
+
+## Current Milestone: v3.0 Manifest Validation & CLI
+
+**Goal:** Add manifest validation (multi-endpoint x402 configs), CLI tooling, Stacks chain support, bazaar extension validation, and publish to npm.
+
+**Target features:**
+- Manifest schema: collection of v2 PaymentRequired entries with service-level metadata
+- Manifest validation: structure, per-endpoint (reuses existing pipeline), cross-endpoint consistency
+- Bazaar extension validation: full depth (shape + JSON Schema + method discrimination)
+- Wild manifest compatibility: detect/normalize non-standard formats (biwas-style)
+- Stacks address validation (c32check)
+- CLI: `npx x402check <url-or-file>` with auto-detect single vs manifest
+- npm publish: make `x402check` available on npm registry
+- Website: manifest validation mode
 
 ## Context
 
@@ -65,6 +90,9 @@ The SDK correctly implements the canonical x402 v1/v2 specs with CAIP-2 network 
 - Root fields: `x402Version` (required, must be 2), `error`, `resource`, `accepts`, `extensions`
 - Each `accepts` entry: `scheme`, `network` (CAIP-2), `amount`, `asset`, `payTo`, `maxTimeoutSeconds`, `extra`
 - Networks use CAIP-2 format: `eip155:8453` (Base), `solana:5eykt4...` (Solana)
+- Bazaar extension (`extensions.bazaar`): per-endpoint discovery metadata (HTTP method, input params, output format, JSON Schema)
+- IETF DNS discovery draft: `_x402` TXT records → `/.well-known/x402` manifest URL (schema deferred to core protocol)
+- Wild manifests exist (x402.biwas.xyz) using non-standard formats without proper `accepts` arrays
 
 **Architecture:**
 - Monorepo: `packages/x402check/` (SDK), `apps/website/` (site), `packages/config/` (shared TS config)
@@ -97,7 +125,7 @@ The SDK correctly implements the canonical x402 v1/v2 specs with CAIP-2 network 
 | Checksum = warning not error | All-lowercase addresses are valid but risky | ✓ Good — better UX |
 | CAIP-2 for networks | Canonical spec compliance, future-proof | ✓ Good — replaced simple names |
 | Remove flat-legacy support | x402Version required per spec | ✓ Good — cleaner validation |
-| Local IIFE bundle symlink | Package not yet published to npm | ⚠️ Revisit — publish to npm |
+| Local IIFE bundle symlink | Package not yet published to npm | ⚠️ Revisit — publish to npm in v3.0 |
 
 ---
-*Last updated: 2026-02-04 after v2.0 milestone*
+*Last updated: 2026-02-04 after v3.0 milestone started*

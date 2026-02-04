@@ -90,6 +90,12 @@ Plans:
 
 **Dependencies:** Phase 11 (manifest types and detection)
 
+**Plans:** 2 plans
+
+Plans:
+- [ ] 13-01-PLAN.md — Types, error codes, validateManifest() implementation, and public API export
+- [ ] 13-02-PLAN.md — Comprehensive test suite and integration test updates
+
 **Requirements:**
 - MAN-02: Manifest detection & validation (structure, per-endpoint, cross-endpoint checks)
 - MAN-03: Full bazaar extension validation (shape, JSON Schema, method type discrimination)
@@ -210,11 +216,11 @@ Phase 12 (Stacks)  ─────────────┘ (parallel with 13)
 | 10. Website Integration | v2.0 | 2/2 | Complete | 2026-01-29 |
 | 11. Manifest Types & Detection | v3.0 | 2/2 | Complete | 2026-02-04 |
 | 12. Stacks Chain Support | v3.0 | 1/1 | Complete | 2026-02-04 |
-| 13. Manifest Validation | v3.0 | -- | Pending | -- |
+| 13. Manifest Validation | v3.0 | 0/2 | In Progress | -- |
 | 14. CLI Manifest Mode | v3.0 | -- | Pending | -- |
 | 15. Website Manifest UI | v3.0 | -- | Pending | -- |
 | 16. Build & Publish | v3.0 | -- | Pending | -- |
 
 ---
 *Roadmap created: 2026-01-29*
-*Last updated: 2026-02-04 -- Phase 12 complete (Stacks Chain Support)*
+*Last updated: 2026-02-04 -- Phase 13 planned (Manifest Validation)*

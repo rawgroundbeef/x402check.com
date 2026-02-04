@@ -93,8 +93,8 @@ Plans:
 **Plans:** 2 plans
 
 Plans:
-- [ ] 13-01-PLAN.md — Types, error codes, validateManifest() implementation, and public API export
-- [ ] 13-02-PLAN.md — Comprehensive test suite and integration test updates
+- [x] 13-01-PLAN.md — Types, error codes, validateManifest() implementation, and public API export
+- [x] 13-02-PLAN.md — Comprehensive test suite and integration test updates
 
 **Requirements:**
 - MAN-02: Manifest detection & validation (structure, per-endpoint, cross-endpoint checks)
@@ -189,14 +189,14 @@ Phase 12 (Stacks)  ─────────────┘ (parallel with 13)
 | Requirement | ID | Phase | Status |
 |-------------|-----|-------|--------|
 | Manifest schema definition | MAN-01 | Phase 11 | Complete |
-| Manifest detection & validation | MAN-02 | Phase 13 | Pending |
-| Full bazaar extension validation | MAN-03 | Phase 13 | Pending |
+| Manifest detection & validation | MAN-02 | Phase 13 | Complete |
+| Full bazaar extension validation | MAN-03 | Phase 13 | Complete |
 | Wild manifest compatibility | MAN-04 | Phase 11 | Complete |
 | Stacks chain address validation | MAN-05 | Phase 12 | Complete |
 | CLI with auto-detection | MAN-06 | Phase 14 | Pending |
 | npm publish to registry | MAN-07 | Phase 16 | Pending |
 | Website manifest validation mode | MAN-08 | Phase 15 | Pending |
-| `validateManifest()` SDK export | MAN-09 | Phase 13 | Pending |
+| `validateManifest()` SDK export | MAN-09 | Phase 13 | Complete |
 
 **Coverage: 9/9 requirements mapped. No orphans.**
 
@@ -216,11 +216,11 @@ Phase 12 (Stacks)  ─────────────┘ (parallel with 13)
 | 10. Website Integration | v2.0 | 2/2 | Complete | 2026-01-29 |
 | 11. Manifest Types & Detection | v3.0 | 2/2 | Complete | 2026-02-04 |
 | 12. Stacks Chain Support | v3.0 | 1/1 | Complete | 2026-02-04 |
-| 13. Manifest Validation | v3.0 | 0/2 | In Progress | -- |
+| 13. Manifest Validation | v3.0 | 2/2 | Complete | 2026-02-04 |
 | 14. CLI Manifest Mode | v3.0 | -- | Pending | -- |
 | 15. Website Manifest UI | v3.0 | -- | Pending | -- |
 | 16. Build & Publish | v3.0 | -- | Pending | -- |
 
 ---
 *Roadmap created: 2026-01-29*
-*Last updated: 2026-02-04 -- Phase 13 planned (Manifest Validation)*
+*Last updated: 2026-02-04 -- Phase 13 complete (Manifest Validation)*

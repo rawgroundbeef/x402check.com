@@ -9,18 +9,18 @@ See: .planning/PROJECT.md (updated 2026-02-04)
 
 ## Current Position
 
-Phase: 13 - Manifest Validation (complete)
-Plan: 02 of 02 complete
-Status: Phase 13 complete
-Progress: [████......] 4/6 v3.0 phases
-Last activity: 2026-02-04 -- Completed 13-02-PLAN.md (manifest validation test coverage)
+Phase: 14 - CLI Manifest Mode (in progress)
+Plan: 01 of 02 complete
+Status: Phase 14 in progress
+Progress: [████▌.....] 4.5/6 v3.0 phases
+Last activity: 2026-02-04 -- Completed 14-01-PLAN.md (CLI infrastructure modules)
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 20 (3 v1.0 + 12 v2.0 + 5 v3.0)
-- Average duration: 3.1 min
-- Total execution time: 1.02 hours
+- Total plans completed: 21 (3 v1.0 + 12 v2.0 + 6 v3.0)
+- Average duration: 3.0 min
+- Total execution time: 1.03 hours
 
 ## Accumulated Context
 
@@ -69,6 +69,12 @@ See PROJECT.md Key Decisions table for full list.
 - Use valid checksummed EVM addresses in test helpers to ensure per-endpoint validation passes cleanly
 - Group tests by validation layer (basic, per-endpoint, cross-endpoint, bazaar, edge cases) for clarity
 
+**Phase 14-01 decisions:**
+- cli-table3 as devDependency (tsdown bundles it, not exposed to library users)
+- node:util parseArgs API for modern argument parsing with repeatable flags
+- Manual redirect tracking with configurable limits for better control and error handling
+- Manifest auto-detection in resolveInput() with wild manifest normalization support
+
 ### Pending Todos
 
 None.
@@ -79,7 +85,7 @@ None.
 
 ## Session Continuity
 
-Last session: 2026-02-04 18:28 UTC
-Stopped at: Phase 13 complete (manifest validation with comprehensive test coverage)
+Last session: 2026-02-04 21:55 UTC
+Stopped at: Completed 14-01-PLAN.md (CLI infrastructure modules: args, fetch, detect)
 Resume file: None
-Next: Phase 14 (CLI Integration) or Phase 15 (Website Integration) - both can run in parallel. Critical path continues through 14 → 16.
+Next: Phase 14-02 (CLI main flow rewrite with manifest support) or Phase 15 (Website Integration). Critical path continues through 14 → 16.

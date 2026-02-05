@@ -213,3 +213,243 @@ describe('cli — --strict flag', () => {
     expect(strict.exitCode).toBe(1)
   })
 })
+
+describe('cli — manifest detection', () => {
+  test('valid manifest file: exits 0, shows summary table', () => {
+    const { stdout, exitCode } = run([resolve(FIXTURES, 'valid-manifest.json')])
+    expect(exitCode).toBe(0)
+    expect(stdout).toContain('Detected: manifest with 2 endpoints')
+    expect(stdout).toContain('api/weather')
+    expect(stdout).toContain('api/maps')
+  })
+
+  test('manifest with majority pass: exits 0', () => {
+    const { stdout, exitCode } = run([resolve(FIXTURES, 'invalid-manifest.json')])
+    expect(exitCode).toBe(0) // 2 valid + 1 invalid = majority pass
+    expect(stdout).toContain('Detected: manifest with 3 endpoints')
+  })
+
+  test('manifest with majority fail: exits 1', () => {
+    // Create inline JSON with 1 valid + 2 invalid endpoints
+    const manifest = JSON.stringify({
+      x402Version: 2,
+      service: { name: 'Test', url: 'https://api.example.com' },
+      endpoints: {
+        'api/valid': {
+          x402Version: 2,
+          accepts: [{
+            scheme: 'exact',
+            network: 'eip155:8453',
+            amount: '1000000',
+            asset: '0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913',
+            payTo: '0x5aAeb6053F3E94C9b9A09f33669435E7Ef1BeAed',
+            maxTimeoutSeconds: 60,
+          }],
+          resource: { url: 'https://api.example.com/valid' },
+        },
+        'api/broken1': {
+          x402Version: 2,
+          accepts: [],
+          resource: { url: 'https://api.example.com/broken1' },
+        },
+        'api/broken2': {
+          x402Version: 2,
+          accepts: [],
+          resource: { url: 'https://api.example.com/broken2' },
+        },
+      },
+    })
+    const { exitCode } = run([manifest])
+    expect(exitCode).toBe(1) // 1 valid + 2 invalid = majority fail
+  })
+
+  test('single config still detected correctly', () => {
+    const { stdout, exitCode } = run([resolve(FIXTURES, 'valid-v2-base.json')])
+    expect(exitCode).toBe(0)
+    expect(stdout).toContain('Detected:')
+    expect(stdout).toContain('config')
+  })
+})
+
+describe('cli — manifest --json', () => {
+  test('manifest --json outputs parseable JSON', () => {
+    const { stdout, exitCode } = run(['--json', resolve(FIXTURES, 'valid-manifest.json')])
+    expect(exitCode).toBe(0)
+    const parsed = JSON.parse(stdout)
+    expect(parsed).toHaveProperty('endpointResults')
+    expect(parsed).toHaveProperty('valid')
+    expect(typeof parsed.valid).toBe('boolean')
+    // No ANSI codes in --json output
+    expect(stdout).not.toContain('\x1b')
+  })
+
+  test('manifest --json with invalid: parseable JSON with errors', () => {
+    const { stdout, exitCode } = run(['--json', resolve(FIXTURES, 'invalid-manifest.json')])
+    expect(exitCode).toBe(0) // Majority pass
+    const parsed = JSON.parse(stdout)
+    expect(parsed).toHaveProperty('endpointResults')
+    expect(Object.keys(parsed.endpointResults).length).toBe(3)
+  })
+})
+
+describe('cli — manifest --quiet', () => {
+  test('manifest --quiet: no output, exit 0 on majority pass', () => {
+    const { stdout, exitCode } = run(['--quiet', resolve(FIXTURES, 'valid-manifest.json')])
+    expect(stdout.trim()).toBe('')
+    expect(exitCode).toBe(0)
+  })
+
+  test('manifest --quiet: no output, exit 1 on majority fail', () => {
+    // Create inline JSON manifest with majority invalid
+    const manifest = JSON.stringify({
+      x402Version: 2,
+      service: { name: 'Test', url: 'https://api.example.com' },
+      endpoints: {
+        'api/valid': {
+          x402Version: 2,
+          accepts: [{
+            scheme: 'exact',
+            network: 'eip155:8453',
+            amount: '1000000',
+            asset: '0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913',
+            payTo: '0x5aAeb6053F3E94C9b9A09f33669435E7Ef1BeAed',
+            maxTimeoutSeconds: 60,
+          }],
+          resource: { url: 'https://api.example.com/valid' },
+        },
+        'api/broken1': {
+          x402Version: 2,
+          accepts: [],
+          resource: { url: 'https://api.example.com/broken1' },
+        },
+        'api/broken2': {
+          x402Version: 2,
+          accepts: [],
+          resource: { url: 'https://api.example.com/broken2' },
+        },
+      },
+    })
+    const { stdout, exitCode } = run(['--quiet', manifest])
+    expect(stdout.trim()).toBe('')
+    expect(exitCode).toBe(1)
+  })
+})
+
+describe('cli — manifest --strict', () => {
+  test('--strict promotes manifest warnings to errors', () => {
+    // Create a manifest with unknown asset (produces warnings)
+    const manifest = JSON.stringify({
+      x402Version: 2,
+      service: { name: 'Test', url: 'https://api.example.com' },
+      endpoints: {
+        'api/test': {
+          x402Version: 2,
+          accepts: [{
+            scheme: 'exact',
+            network: 'eip155:8453',
+            amount: '1000000',
+            asset: '0x0000000000000000000000000000000000000001',
+            payTo: '0x5aAeb6053F3E94C9b9A09f33669435E7Ef1BeAed',
+            maxTimeoutSeconds: 60,
+          }],
+          resource: { url: 'https://api.example.com/test' },
+        },
+      },
+    })
+
+    // Normal: valid with warnings, exit 0
+    const normal = run([manifest])
+    expect(normal.exitCode).toBe(0)
+
+    // Strict: warnings promoted to errors, exit 1
+    const strict = run(['--strict', manifest])
+    expect(strict.exitCode).toBe(1)
+  })
+
+  test('--strict --json outputs strict-mode JSON', () => {
+    const manifest = JSON.stringify({
+      x402Version: 2,
+      service: { name: 'Test', url: 'https://api.example.com' },
+      endpoints: {
+        'api/test': {
+          x402Version: 2,
+          accepts: [{
+            scheme: 'exact',
+            network: 'eip155:8453',
+            amount: '1000000',
+            asset: '0x0000000000000000000000000000000000000001',
+            payTo: '0x5aAeb6053F3E94C9b9A09f33669435E7Ef1BeAed',
+            maxTimeoutSeconds: 60,
+          }],
+          resource: { url: 'https://api.example.com/test' },
+        },
+      },
+    })
+
+    const { stdout, exitCode } = run(['--strict', '--json', manifest])
+    expect(exitCode).toBe(1)
+    const parsed = JSON.parse(stdout)
+    expect(parsed.valid).toBe(false)
+  })
+})
+
+describe('cli — manifest flag composition', () => {
+  test('--quiet takes precedence over --json', () => {
+    const { stdout, exitCode } = run(['--quiet', '--json', resolve(FIXTURES, 'valid-manifest.json')])
+    expect(stdout.trim()).toBe('')
+    expect(exitCode).toBe(0)
+  })
+
+  test('--strict --quiet: exit code reflects strict validation', () => {
+    // Manifest with warnings
+    const manifest = JSON.stringify({
+      x402Version: 2,
+      service: { name: 'Test', url: 'https://api.example.com' },
+      endpoints: {
+        'api/test': {
+          x402Version: 2,
+          accepts: [{
+            scheme: 'exact',
+            network: 'eip155:8453',
+            amount: '1000000',
+            asset: '0x0000000000000000000000000000000000000001',
+            payTo: '0x5aAeb6053F3E94C9b9A09f33669435E7Ef1BeAed',
+            maxTimeoutSeconds: 60,
+          }],
+          resource: { url: 'https://api.example.com/test' },
+        },
+      },
+    })
+
+    const { stdout, exitCode } = run(['--strict', '--quiet', manifest])
+    expect(stdout.trim()).toBe('')
+    expect(exitCode).toBe(1) // Strict mode promotes warnings to errors
+  })
+})
+
+describe('cli — dash stdin for manifest', () => {
+  test('dash reads manifest from stdin', () => {
+    const manifest = JSON.stringify({
+      x402Version: 2,
+      service: { name: 'Test', url: 'https://api.example.com' },
+      endpoints: {
+        'api/weather': {
+          x402Version: 2,
+          accepts: [{
+            scheme: 'exact',
+            network: 'eip155:8453',
+            amount: '1000000',
+            asset: '0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913',
+            payTo: '0x5aAeb6053F3E94C9b9A09f33669435E7Ef1BeAed',
+            maxTimeoutSeconds: 60,
+          }],
+          resource: { url: 'https://api.example.com/weather' },
+        },
+      },
+    })
+
+    const { stdout, exitCode } = run(['-'], { input: manifest })
+    expect(exitCode).toBe(0)
+    expect(stdout).toContain('Detected: manifest')
+  })
+})

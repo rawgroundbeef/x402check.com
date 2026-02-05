@@ -62,13 +62,13 @@ export function formatIssue(issue: ValidationIssue, colorEnabled: boolean): stri
  * Format validation result (single-config)
  *
  * Modes:
+ * - quiet: Empty string (exit code only) — takes precedence
  * - json: Pure JSON output
- * - quiet: Empty string (exit code only)
  * - terminal: Status + errors + warnings
  */
 export function formatValidationResult(result: ValidationResult, args: CliArgs): string {
-  if (args.json) return JSON.stringify(result, null, 2)
   if (args.quiet) return ''
+  if (args.json) return JSON.stringify(result, null, 2)
 
   const lines: string[] = []
 
@@ -102,13 +102,13 @@ export function formatValidationResult(result: ValidationResult, args: CliArgs):
  * Format check result (URL fetch + extraction + validation)
  *
  * Modes:
+ * - quiet: Empty string (exit code only) — takes precedence
  * - json: Pure JSON output
- * - quiet: Empty string (exit code only)
  * - terminal: Extraction status + validation + summary
  */
 export function formatCheckResult(result: CheckResult, args: CliArgs): string {
-  if (args.json) return JSON.stringify(result, null, 2)
   if (args.quiet) return ''
+  if (args.json) return JSON.stringify(result, null, 2)
 
   const lines: string[] = []
 
@@ -164,13 +164,13 @@ export function formatCheckResult(result: CheckResult, args: CliArgs): string {
  * Format manifest validation result
  *
  * Modes:
+ * - quiet: Empty string (exit code only) — takes precedence
  * - json: Pure JSON output
- * - quiet: Empty string (exit code only)
  * - terminal: Summary table + endpoint details + cross-endpoint issues
  */
 export function formatManifestResult(result: ManifestValidationResult, args: CliArgs): string {
-  if (args.json) return JSON.stringify(result, null, 2)
   if (args.quiet) return ''
+  if (args.json) return JSON.stringify(result, null, 2)
 
   const lines: string[] = []
 

@@ -25,7 +25,7 @@ jobs:
         run: pnpm --filter x402lint build
 
       - name: Replace symlink with actual bundle
-        run: cp packages/x402lint/dist/index.iife.js apps/website/x402lint.iife.js
+        run: rm apps/website/x402lint.iife.js && cp packages/x402lint/dist/index.iife.js apps/website/x402lint.iife.js
 
       - name: Deploy to Cloudflare Pages
         uses: cloudflare/wrangler-action@v3
